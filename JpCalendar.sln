@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{0F3571CB-3C97-4D53-BFD8-3AEB3DCDCBC1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JpCalendar.WebAPI", "src\JpCalendar.WebAPI\JpCalendar.WebAPI.csproj", "{B0187490-3CB9-4C87-BEDA-7C0D369DF0F8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JpCalendar", "src\JpCalendar\JpCalendar.csproj", "{00A5727D-5A8E-4974-BCE6-B208079A8DCC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{FA9F28AB-BD74-49DF-806E-B5404D305553}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JpCalendar.Test", "tests\JpCalendar.Test\JpCalendar.Test.csproj", "{1186D80F-9C79-4FBB-B6B9-3DF9D1460DE5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B0187490-3CB9-4C87-BEDA-7C0D369DF0F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0187490-3CB9-4C87-BEDA-7C0D369DF0F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0187490-3CB9-4C87-BEDA-7C0D369DF0F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0187490-3CB9-4C87-BEDA-7C0D369DF0F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00A5727D-5A8E-4974-BCE6-B208079A8DCC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00A5727D-5A8E-4974-BCE6-B208079A8DCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00A5727D-5A8E-4974-BCE6-B208079A8DCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00A5727D-5A8E-4974-BCE6-B208079A8DCC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1186D80F-9C79-4FBB-B6B9-3DF9D1460DE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1186D80F-9C79-4FBB-B6B9-3DF9D1460DE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1186D80F-9C79-4FBB-B6B9-3DF9D1460DE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1186D80F-9C79-4FBB-B6B9-3DF9D1460DE5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B0187490-3CB9-4C87-BEDA-7C0D369DF0F8} = {0F3571CB-3C97-4D53-BFD8-3AEB3DCDCBC1}
+		{00A5727D-5A8E-4974-BCE6-B208079A8DCC} = {0F3571CB-3C97-4D53-BFD8-3AEB3DCDCBC1}
+		{1186D80F-9C79-4FBB-B6B9-3DF9D1460DE5} = {FA9F28AB-BD74-49DF-806E-B5404D305553}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BB5B906A-2F2F-4139-8728-99B9891D8DE0}
+	EndGlobalSection
+EndGlobal
