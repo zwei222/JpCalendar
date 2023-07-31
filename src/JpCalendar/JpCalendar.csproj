@@ -2,8 +2,9 @@
 
   <PropertyGroup>
     <TargetFrameworks>net7.0;net6.0;netstandard2.0</TargetFrameworks>
+    <PackageVersion>0.3.0</PackageVersion>
     <Description>This library is for processing related to the Japanese calendar.</Description>
-    <PackageReleaseNotes>Add README.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fix README.</PackageReleaseNotes>
     <PackageTags>Japanese Calendar Holiday</PackageTags>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
