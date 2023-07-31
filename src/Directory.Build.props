@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageVersion>0.2.0</PackageVersion>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/zwei222/JpCalendar.git</RepositoryUrl>
     <PackageProjectUrl>https://github.com/zwei222/JpCalendar</PackageProjectUrl>
