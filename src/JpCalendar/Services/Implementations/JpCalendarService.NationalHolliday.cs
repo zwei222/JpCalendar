@@ -61,7 +61,7 @@ internal sealed partial class JpCalendarService
             return true;
         }
 
-        return this.IsBetweenNationalHoliday(date) && date >= StartNationalHolidayByLaw;
+        return this.IsNationalHolidayByLaw(date);
     }
 
 #if NET6_0_OR_GREATER
@@ -113,8 +113,8 @@ internal sealed partial class JpCalendarService
 
                 if (exceptionDate.Value.Day != date.Day)
                 {
-                    if ((exceptionDate.Value.Day + nationalHoliday.TransferPeriod) >= date.Day &&
-                        date.AddDays(-1).DayOfWeek is DayOfWeek.Sunday &&
+                    if ((exceptionDate.Value.Day + nationalHoliday.TransferPeriod) == date.Day &&
+                        date.AddDays(-(nationalHoliday.TransferPeriod)).DayOfWeek is DayOfWeek.Sunday &&
                         date >= StartSubstitutionDay)
                     {
                         return SubstitutionDay;
@@ -134,8 +134,8 @@ internal sealed partial class JpCalendarService
 
                 if (nationalHoliday.Day != date.Day)
                 {
-                    if ((nationalHoliday.Day + nationalHoliday.TransferPeriod) >= date.Day &&
-                        date.AddDays(-1).DayOfWeek is DayOfWeek.Sunday &&
+                    if ((nationalHoliday.Day + nationalHoliday.TransferPeriod) == date.Day &&
+                        date.AddDays(-(nationalHoliday.TransferPeriod)).DayOfWeek is DayOfWeek.Sunday &&
                         date >= StartSubstitutionDay)
                     {
                         return SubstitutionDay;
@@ -189,8 +189,7 @@ internal sealed partial class JpCalendarService
             return SubstitutionDay;
         }
 
-        if (this.IsBetweenNationalHoliday(date) &&
-            date >= StartNationalHolidayByLaw)
+        if (this.IsNationalHolidayByLaw(date))
         {
             return NationalHolidayByLaw;
         }
@@ -199,7 +198,7 @@ internal sealed partial class JpCalendarService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsBetweenNationalHoliday(
+    private bool IsNationalHolidayByLaw(
 #if NET6_0_OR_GREATER
         DateOnly
 #else
@@ -207,8 +206,10 @@ internal sealed partial class JpCalendarService
 #endif
             date)
     {
-        return this.IsNationalHolidayInner(date.AddDays(-1)) ||
-               this.IsNationalHolidayInner(date.AddDays(1));
+        return this.IsNationalHolidayInner(date.AddDays(-1)) &&
+               this.IsNationalHolidayInner(date.AddDays(1)) &&
+               date.DayOfWeek is not DayOfWeek.Sunday &&
+               date >= StartNationalHolidayByLaw;
     }
 
     private bool IsNationalHolidayInner(
@@ -252,8 +253,8 @@ internal sealed partial class JpCalendarService
 
                 if (exceptionDate.Value.Day != date.Day)
                 {
-                    if ((exceptionDate.Value.Day + nationalHoliday.TransferPeriod) >= date.Day &&
-                        date.AddDays(-1).DayOfWeek is DayOfWeek.Sunday &&
+                    if ((exceptionDate.Value.Day + nationalHoliday.TransferPeriod) == date.Day &&
+                        date.AddDays(-(nationalHoliday.TransferPeriod)).DayOfWeek is DayOfWeek.Sunday &&
                         date >= StartSubstitutionDay)
                     {
                         return true;
@@ -273,8 +274,8 @@ internal sealed partial class JpCalendarService
 
                 if (nationalHoliday.Day != date.Day)
                 {
-                    if ((nationalHoliday.Day + nationalHoliday.TransferPeriod) >= date.Day &&
-                        date.AddDays(-1).DayOfWeek is DayOfWeek.Sunday &&
+                    if ((nationalHoliday.Day + nationalHoliday.TransferPeriod) == date.Day &&
+                        date.AddDays(-(nationalHoliday.TransferPeriod)).DayOfWeek is DayOfWeek.Sunday &&
                         date >= StartSubstitutionDay)
                     {
                         return true;
@@ -440,20 +441,6 @@ internal sealed partial class JpCalendarService
             Name = "元日",
             Month = 1,
             Day = 1,
-            Week = -1,
-            DayOfWeek = -1,
-            StartDate = null,
-            EndDate = null,
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = true,
-            IsFixedWeek = false,
-            TransferPeriod = 1,
-            Name = "休日",
-            Month = 1,
-            Day = 2,
             Week = -1,
             DayOfWeek = -1,
             StartDate = null,
@@ -637,6 +624,28 @@ internal sealed partial class JpCalendarService
             Week = -1,
             DayOfWeek = -1,
             StartDate = null,
+#if NET6_0_OR_GREATER
+            EndDate = new DateOnly(2006, 12, 31),
+#else
+            EndDate = new DateTime(2006, 12, 31),
+#endif
+            ExceptionDate = null,
+        });
+        this.nationalHolidays.Add(new NationalHoliday
+        {
+            IsFixedDay = true,
+            IsFixedWeek = false,
+            TransferPeriod = 3,
+            Name = "憲法記念日",
+            Month = 5,
+            Day = 3,
+            Week = -1,
+            DayOfWeek = -1,
+#if NET6_0_OR_GREATER
+            StartDate = new DateOnly(2007, 1, 1),
+#else
+            StartDate = new DateTime(2007, 1, 1),
+#endif
             EndDate = null,
             ExceptionDate = null,
         });
@@ -662,7 +671,7 @@ internal sealed partial class JpCalendarService
         {
             IsFixedDay = true,
             IsFixedWeek = false,
-            TransferPeriod = 3,
+            TransferPeriod = 1,
             Name = "こどもの日",
             Month = 5,
             Day = 5,
@@ -726,7 +735,16 @@ internal sealed partial class JpCalendarService
             StartDate = new DateTime(2016, 1, 1),
 #endif
             EndDate = null,
-            ExceptionDate = null,
+            ExceptionDate = new[]
+            {
+#if NET6_0_OR_GREATER
+                new DateOnly(2020, 8, 10),
+                new DateOnly(2021, 8, 8),
+#else
+                new DateTime(2020, 8, 10),
+                new DateTime(2021, 8, 8),
+#endif
+            },
         });
         this.nationalHolidays.Add(new NationalHoliday
         {
@@ -923,7 +941,7 @@ internal sealed partial class JpCalendarService
             IsFixedDay = false,
             IsFixedWeek = true,
             TransferPeriod = 1,
-            Name = "スポーツの日",
+            Name = "体育の日",
             Month = 10,
             Day = -1,
             Week = 2,
@@ -953,7 +971,16 @@ internal sealed partial class JpCalendarService
             StartDate = new DateTime(2020, 1, 1),
 #endif
             EndDate = null,
-            ExceptionDate = null,
+            ExceptionDate = new[]
+            {
+#if NET6_0_OR_GREATER
+                new DateOnly(2020, 7, 24),
+                new DateOnly(2021, 7, 23),
+#else
+                new DateTime(2020, 7, 24),
+                new DateTime(2021, 7, 23),
+#endif
+            },
         });
     }
 
