@@ -102,10 +102,11 @@ internal sealed partial class JpCalendarService : IJpCalendarService
 
         return this.rokuyoDictionary[rokuyoIndex];
     }
-
+#if NET6_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string GetRokuyo(DateOnly dateOnly)
     {
         return this.GetRokuyo(dateOnly.ToDateTime(TimeOnly.MinValue));
     }
+#endif
 }

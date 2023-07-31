@@ -1,10 +1,50 @@
 ﻿namespace JpCalendar;
 
-public readonly struct Era
+public
+#if NET6_0_OR_GREATER
+    readonly
+#endif
+    struct Era
 {
-    public required string Name { get; init; }
+    public
+#if NET8_0_OR_GREATER
+        required
+#endif
+        string Name
+    {
+        get;
+#if NET6_0_OR_GREATER
+        init;
+#else
+        set;
+#endif
+    }
 
-    public required string Abbreviation { get; init; }
+    public
+#if NET8_0_OR_GREATER
+        required
+#endif
+        string Abbreviation
+    {
+        get;
+#if NET6_0_OR_GREATER
+        init;
+#else
+        set;
+#endif
+    }
 
-    public required char Symbol { get; init; }
+    public
+#if NET8_0_OR_GREATER
+        required
+#endif
+        char Symbol
+    {
+        get;
+#if NET6_0_OR_GREATER
+        init;
+#else
+        set;
+#endif
+    }
 }

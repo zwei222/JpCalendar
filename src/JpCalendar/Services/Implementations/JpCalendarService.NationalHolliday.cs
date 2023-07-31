@@ -1,5 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
+#if NET6_0_OR_GREATER
 using System.Runtime.InteropServices;
+#endif
 using JpCalendar.Internals;
 
 namespace JpCalendar.Services.Implementations;
@@ -14,9 +16,21 @@ internal sealed partial class JpCalendarService
 
     private const int MonthOfShubun = 9;
 
-    private static readonly DateOnly StartSubstitutionDay = new(1973, 4, 30);
+    private static readonly
+#if NET6_0_OR_GREATER
+        DateOnly
+#else
+        DateTime
+#endif
+        StartSubstitutionDay = new(1973, 4, 30);
 
-    private static readonly DateOnly StartNationalHolidayByLaw = new(1988, 1, 1);
+    private static readonly
+#if NET6_0_OR_GREATER
+        DateOnly
+#else
+        DateTime
+#endif
+        StartNationalHolidayByLaw = new(1988, 1, 1);
 
     private readonly List<NationalHoliday> nationalHolidays = new();
 
@@ -24,13 +38,21 @@ internal sealed partial class JpCalendarService
 
     private readonly Dictionary<int, int> shubunDayDictionary = new();
 
+#if NET6_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsNationalHoliday(DateTime dateTime)
     {
         return this.IsNationalHoliday(DateOnly.FromDateTime(dateTime));
     }
+#endif
 
-    public bool IsNationalHoliday(DateOnly date)
+    public bool IsNationalHoliday(
+#if NET6_0_OR_GREATER
+        DateOnly
+#else
+        DateTime
+#endif
+            date)
     {
         var isNationalHoliday = this.IsNationalHolidayInner(date);
 
@@ -42,15 +64,27 @@ internal sealed partial class JpCalendarService
         return this.IsBetweenNationalHoliday(date) && date >= StartNationalHolidayByLaw;
     }
 
+#if NET6_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string? GetNationalHolidayName(DateTime dateTime)
     {
         return this.GetNationalHolidayName(DateOnly.FromDateTime(dateTime));
     }
+#endif
 
-    public string? GetNationalHolidayName(DateOnly date)
+    public string? GetNationalHolidayName(
+#if NET6_0_OR_GREATER
+        DateOnly
+#else
+        DateTime
+#endif
+            date)
     {
+#if NET6_0_OR_GREATER
         foreach (var nationalHoliday in CollectionsMarshal.AsSpan(this.nationalHolidays))
+#else
+        foreach (var nationalHoliday in this.nationalHolidays)
+#endif
         {
             if (nationalHoliday.StartDate is not null &&
                 date < nationalHoliday.StartDate)
@@ -66,7 +100,11 @@ internal sealed partial class JpCalendarService
 
             var exceptionDate = nationalHoliday.ExceptionDate?.FirstOrDefault(item => item.Year == date.Year);
 
+#if NET6_0_OR_GREATER
             if (exceptionDate is not null && exceptionDate != default(DateOnly))
+#else
+            if (exceptionDate is not null && exceptionDate != default(DateTime))
+#endif
             {
                 if (exceptionDate.Value.Month != date.Month)
                 {
@@ -161,15 +199,31 @@ internal sealed partial class JpCalendarService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsBetweenNationalHoliday(DateOnly date)
+    private bool IsBetweenNationalHoliday(
+#if NET6_0_OR_GREATER
+        DateOnly
+#else
+        DateTime
+#endif
+            date)
     {
         return this.IsNationalHolidayInner(date.AddDays(-1)) ||
                this.IsNationalHolidayInner(date.AddDays(1));
     }
 
-    private bool IsNationalHolidayInner(DateOnly date)
+    private bool IsNationalHolidayInner(
+#if NET6_0_OR_GREATER
+        DateOnly
+#else
+        DateTime
+#endif
+            date)
     {
+#if NET6_0_OR_GREATER
         foreach (var nationalHoliday in CollectionsMarshal.AsSpan(this.nationalHolidays))
+#else
+        foreach (var nationalHoliday in this.nationalHolidays)
+#endif
         {
             if (nationalHoliday.StartDate is not null &&
                 date < nationalHoliday.StartDate)
@@ -185,7 +239,11 @@ internal sealed partial class JpCalendarService
 
             var exceptionDate = nationalHoliday.ExceptionDate?.FirstOrDefault(item => item.Year == date.Year);
 
+#if NET6_0_OR_GREATER
             if (exceptionDate is not null && exceptionDate != default(DateOnly))
+#else
+            if (exceptionDate is not null && exceptionDate != default(DateTime))
+#endif
             {
                 if (exceptionDate.Value.Month != date.Month)
                 {
@@ -282,11 +340,15 @@ internal sealed partial class JpCalendarService
             return false;
         }
 
+#if NET6_0_OR_GREATER
         ref var dayOfShunbun = ref CollectionsMarshal.GetValueRefOrNullRef(
             this.shunbunDayDictionary,
             year);
 
         if (Unsafe.IsNullRef(ref dayOfShunbun))
+#else
+        if (this.shunbunDayDictionary.TryGetValue(year, out var dayOfShunbun) is false)
+#endif
         {
             return false;
         }
@@ -298,7 +360,11 @@ internal sealed partial class JpCalendarService
 
         if (day - 1 == dayOfShunbun)
         {
+#if NET6_0_OR_GREATER
             var date  = new DateOnly(year, month, dayOfShunbun);
+#else
+            var date  = new DateTime(year, month, dayOfShunbun);
+#endif
 
             if (date.DayOfWeek is DayOfWeek.Sunday &&
                 date >= StartSubstitutionDay)
@@ -319,11 +385,15 @@ internal sealed partial class JpCalendarService
             return false;
         }
 
+#if NET6_0_OR_GREATER
         ref var dayOfShubun = ref CollectionsMarshal.GetValueRefOrNullRef(
             this.shubunDayDictionary,
             year);
 
         if (Unsafe.IsNullRef(ref dayOfShubun))
+#else
+        if (this.shubunDayDictionary.TryGetValue(year, out var dayOfShubun) is false)
+#endif
         {
             return false;
         }
@@ -335,7 +405,11 @@ internal sealed partial class JpCalendarService
 
         if (day - 1 == dayOfShubun)
         {
+#if NET6_0_OR_GREATER
             var date = new DateOnly(year, month, dayOfShubun);
+#else
+            var date = new DateTime(year, month, dayOfShubun);
+#endif
 
             if (date.DayOfWeek is DayOfWeek.Sunday &&
                 date >= StartSubstitutionDay)
@@ -397,7 +471,11 @@ internal sealed partial class JpCalendarService
             Week = -1,
             DayOfWeek = -1,
             StartDate = null,
+#if NET6_0_OR_GREATER
             EndDate = new DateOnly(1999, 12, 31),
+#else
+            EndDate = new DateTime(1999, 12, 31),
+#endif
             ExceptionDate = null,
         });
         this.nationalHolidays.Add(new NationalHoliday
@@ -410,7 +488,11 @@ internal sealed partial class JpCalendarService
             Day = 11,
             Week = -1,
             DayOfWeek = -1,
+#if NET6_0_OR_GREATER
             StartDate = new DateOnly(1967, 1, 1),
+#else
+            StartDate = new DateTime(1967, 1, 1),
+#endif
             EndDate = null,
             ExceptionDate = null,
         });
@@ -424,7 +506,11 @@ internal sealed partial class JpCalendarService
             Day = 23,
             Week = -1,
             DayOfWeek = -1,
+#if NET6_0_OR_GREATER
             StartDate = new DateOnly(2020, 1, 1),
+#else
+            StartDate = new DateTime(2020, 1, 1),
+#endif
             EndDate = null,
             ExceptionDate = null,
         });
@@ -438,8 +524,13 @@ internal sealed partial class JpCalendarService
             Day = 24,
             Week = -1,
             DayOfWeek = -1,
+#if NET6_0_OR_GREATER
             StartDate = new DateOnly(1989, 2, 24),
             EndDate = new DateOnly(1989, 2, 24),
+#else
+            StartDate = new DateTime(1989, 2, 24),
+            EndDate = new DateTime(1989, 2, 24),
+#endif
             ExceptionDate = null,
         });
         this.nationalHolidays.Add(new NationalHoliday
@@ -452,8 +543,13 @@ internal sealed partial class JpCalendarService
             Day = 10,
             Week = -1,
             DayOfWeek = -1,
+#if NET6_0_OR_GREATER
             StartDate = new DateOnly(1959, 4, 10),
             EndDate = new DateOnly(1959, 4, 10),
+#else
+            StartDate = new DateTime(1959, 4, 10),
+            EndDate = new DateTime(1959, 4, 10),
+#endif
             ExceptionDate = null,
         });
         this.nationalHolidays.Add(new NationalHoliday
@@ -467,7 +563,11 @@ internal sealed partial class JpCalendarService
             Week = -1,
             DayOfWeek = -1,
             StartDate = null,
+#if NET6_0_OR_GREATER
             EndDate = new DateOnly(1988, 12, 31),
+#else
+            EndDate = new DateTime(1988, 12, 31),
+#endif
             ExceptionDate = null,
         });
         this.nationalHolidays.Add(new NationalHoliday
@@ -480,8 +580,13 @@ internal sealed partial class JpCalendarService
             Day = 29,
             Week = -1,
             DayOfWeek = -1,
+#if NET6_0_OR_GREATER
             StartDate = new DateOnly(1989, 1, 1),
             EndDate = new DateOnly(2006, 12, 31),
+#else
+            StartDate = new DateTime(1989, 1, 1),
+            EndDate = new DateTime(2006, 12, 31),
+#endif
             ExceptionDate = null,
         });
         this.nationalHolidays.Add(new NationalHoliday
@@ -494,7 +599,11 @@ internal sealed partial class JpCalendarService
             Day = 29,
             Week = -1,
             DayOfWeek = -1,
+#if NET6_0_OR_GREATER
             StartDate = new DateOnly(2007, 1, 1),
+#else
+            StartDate = new DateTime(2007, 1, 1),
+#endif
             EndDate = null,
             ExceptionDate = null,
         });
@@ -508,8 +617,13 @@ internal sealed partial class JpCalendarService
             Day = 1,
             Week = -1,
             DayOfWeek = -1,
+#if NET6_0_OR_GREATER
             StartDate = new DateOnly(2019, 5, 1),
             EndDate = new DateOnly(2019, 5, 1),
+#else
+            StartDate = new DateTime(2019, 5, 1),
+            EndDate = new DateTime(2019, 5, 1),
+#endif
             ExceptionDate = null,
         });
         this.nationalHolidays.Add(new NationalHoliday
@@ -536,7 +650,11 @@ internal sealed partial class JpCalendarService
             Day = 4,
             Week = -1,
             DayOfWeek = -1,
+#if NET6_0_OR_GREATER
             StartDate = new DateOnly(2007, 1, 1),
+#else
+            StartDate = new DateTime(2007, 1, 1),
+#endif
             EndDate = null,
             ExceptionDate = null,
         });
@@ -564,8 +682,13 @@ internal sealed partial class JpCalendarService
             Day = 9,
             Week = -1,
             DayOfWeek = -1,
+#if NET6_0_OR_GREATER
             StartDate = new DateOnly(1993, 6, 9),
             EndDate = new DateOnly(1993, 6, 9),
+#else
+            StartDate = new DateTime(1993, 6, 9),
+            EndDate = new DateTime(1993, 6, 9),
+#endif
             ExceptionDate = null,
         });
         this.nationalHolidays.Add(new NationalHoliday
@@ -578,8 +701,13 @@ internal sealed partial class JpCalendarService
             Day = 20,
             Week = -1,
             DayOfWeek = -1,
+#if NET6_0_OR_GREATER
             StartDate = new DateOnly(1996, 1, 1),
             EndDate = new DateOnly(2002, 12, 31),
+#else
+            StartDate = new DateTime(1996, 1, 1),
+            EndDate = new DateTime(2002, 12, 31),
+#endif
             ExceptionDate = null,
         });
         this.nationalHolidays.Add(new NationalHoliday
@@ -592,7 +720,11 @@ internal sealed partial class JpCalendarService
             Day = 11,
             Week = -1,
             DayOfWeek = -1,
+#if NET6_0_OR_GREATER
             StartDate = new DateOnly(2016, 1, 1),
+#else
+            StartDate = new DateTime(2016, 1, 1),
+#endif
             EndDate = null,
             ExceptionDate = null,
         });
@@ -606,8 +738,13 @@ internal sealed partial class JpCalendarService
             Day = 15,
             Week = -1,
             DayOfWeek = -1,
+#if NET6_0_OR_GREATER
             StartDate = new DateOnly(1966, 1, 1),
             EndDate = new DateOnly(2002, 12, 31),
+#else
+            StartDate = new DateTime(1966, 1, 1),
+            EndDate = new DateTime(2002, 12, 31),
+#endif
             ExceptionDate = null,
         });
         this.nationalHolidays.Add(new NationalHoliday
@@ -620,8 +757,13 @@ internal sealed partial class JpCalendarService
             Day = 10,
             Week = -1,
             DayOfWeek = -1,
+#if NET6_0_OR_GREATER
             StartDate = new DateOnly(1966, 1, 1),
             EndDate = new DateOnly(1999, 12, 31),
+#else
+            StartDate = new DateTime(1966, 1, 1),
+            EndDate = new DateTime(1999, 12, 31),
+#endif
             ExceptionDate = null,
         });
         this.nationalHolidays.Add(new NationalHoliday
@@ -634,8 +776,13 @@ internal sealed partial class JpCalendarService
             Day = 22,
             Week = -1,
             DayOfWeek = -1,
+#if NET6_0_OR_GREATER
             StartDate = new DateOnly(2019, 10, 22),
             EndDate = new DateOnly(2019, 10, 22),
+#else
+            StartDate = new DateTime(2019, 10, 22),
+            EndDate = new DateTime(2019, 10, 22),
+#endif
             ExceptionDate = null,
         });
         this.nationalHolidays.Add(new NationalHoliday
@@ -662,8 +809,13 @@ internal sealed partial class JpCalendarService
             Day = 12,
             Week = -1,
             DayOfWeek = -1,
+#if NET6_0_OR_GREATER
             StartDate = new DateOnly(1990, 11, 12),
             EndDate = new DateOnly(1990, 11, 12),
+#else
+            StartDate = new DateTime(1990, 11, 12),
+            EndDate = new DateTime(1990, 11, 12),
+#endif
             ExceptionDate = null,
         });
         this.nationalHolidays.Add(new NationalHoliday
@@ -690,8 +842,13 @@ internal sealed partial class JpCalendarService
             Day = 23,
             Week = -1,
             DayOfWeek = -1,
+#if NET6_0_OR_GREATER
             StartDate = new DateOnly(1989, 1, 1),
             EndDate = new DateOnly(2018, 12, 31),
+#else
+            StartDate = new DateTime(1989, 1, 1),
+            EndDate = new DateTime(2018, 12, 31),
+#endif
             ExceptionDate = null,
         });
     }
@@ -708,7 +865,11 @@ internal sealed partial class JpCalendarService
             Day = -1,
             Week = 2,
             DayOfWeek = 1,
+#if NET6_0_OR_GREATER
             StartDate = new DateOnly(2000, 1, 1),
+#else
+            StartDate = new DateTime(2000, 1, 1),
+#endif
             EndDate = null,
             ExceptionDate = null,
         });
@@ -722,12 +883,21 @@ internal sealed partial class JpCalendarService
             Day = -1,
             Week = 3,
             DayOfWeek = 1,
+#if NET6_0_OR_GREATER
             StartDate = new DateOnly(2003, 1, 1),
+#else
+            StartDate = new DateTime(2003, 1, 1),
+#endif
             EndDate = null,
             ExceptionDate = new[]
             {
+#if NET6_0_OR_GREATER
                 new DateOnly(2020, 7, 23),
                 new DateOnly(2021, 7, 22),
+#else
+                new DateTime(2020, 7, 23),
+                new DateTime(2021, 7, 22),
+#endif
             },
         });
         this.nationalHolidays.Add(new NationalHoliday
@@ -740,7 +910,11 @@ internal sealed partial class JpCalendarService
             Day = -1,
             Week = 3,
             DayOfWeek = 1,
+#if NET6_0_OR_GREATER
             StartDate = new DateOnly(2003, 1, 1),
+#else
+            StartDate = new DateTime(2003, 1, 1),
+#endif
             EndDate = null,
             ExceptionDate = null,
         });
@@ -754,8 +928,13 @@ internal sealed partial class JpCalendarService
             Day = -1,
             Week = 2,
             DayOfWeek = 1,
+#if NET6_0_OR_GREATER
             StartDate = new DateOnly(2000, 1, 1),
             EndDate = new DateOnly(2019, 12, 31),
+#else
+            StartDate = new DateTime(2000, 1, 1),
+            EndDate = new DateTime(2019, 12, 31),
+#endif
             ExceptionDate = null,
         });
         this.nationalHolidays.Add(new NationalHoliday
@@ -768,7 +947,11 @@ internal sealed partial class JpCalendarService
             Day = -1,
             Week = 2,
             DayOfWeek = 1,
+#if NET6_0_OR_GREATER
             StartDate = new DateOnly(2020, 1, 1),
+#else
+            StartDate = new DateTime(2020, 1, 1),
+#endif
             EndDate = null,
             ExceptionDate = null,
         });

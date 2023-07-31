@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using JpCalendar.Internals;
 
 namespace JpCalendar.Services;
 
@@ -17,13 +16,19 @@ public interface IJpCalendarService
 
     string GetRokuyo(DateTime dateTime);
 
+#if NET6_0_OR_GREATER
     string GetRokuyo(DateOnly dateOnly);
+#endif
 
     bool IsNationalHoliday(DateTime dateTime);
 
+#if NET6_0_OR_GREATER
     bool IsNationalHoliday(DateOnly date);
+#endif
 
     string? GetNationalHolidayName(DateTime dateTime);
 
+#if NET6_0_OR_GREATER
     string? GetNationalHolidayName(DateOnly date);
+#endif
 }

@@ -1,26 +1,177 @@
 ﻿namespace JpCalendar.Internals;
 
-internal readonly struct NationalHoliday
+internal
+#if NET6_0_OR_GREATER
+    readonly
+#endif
+    struct NationalHoliday
 {
-    public required bool IsFixedDay { get; init; }
+    public
+#if NET8_0_OR_GREATER
+        required
+#endif
+        bool IsFixedDay
+    {
+        get;
+#if NET6_0_OR_GREATER
+        init;
+#else
+        set;
+#endif
+    }
 
-    public required bool IsFixedWeek { get; init; }
+    public
+#if NET8_0_OR_GREATER
+        required
+#endif
+        bool IsFixedWeek
+    {
+        get;
+#if NET6_0_OR_GREATER
+        init;
+#else
+        set;
+#endif
+    }
 
-    public required int TransferPeriod { get; init; }
+    public
+#if NET8_0_OR_GREATER
+        required
+#endif
+        int TransferPeriod
+    {
+        get;
+#if NET6_0_OR_GREATER
+        init;
+#else
+        set;
+#endif
+    }
 
-    public required string Name { get; init; }
+    public
+#if NET8_0_OR_GREATER
+        required
+#endif
+        string Name
+    {
+        get;
+#if NET6_0_OR_GREATER
+        init;
+#else
+        set;
+#endif
+    }
 
-    public required int Month { get; init; }
+    public
+#if NET8_0_OR_GREATER
+        required
+#endif
+        int Month
+    {
+        get;
+#if NET6_0_OR_GREATER
+        init;
+#else
+        set;
+#endif
+    }
 
-    public required int Day { get; init; }
+    public
+#if NET8_0_OR_GREATER
+        required
+#endif
+        int Day
+    {
+        get;
+#if NET6_0_OR_GREATER
+        init;
+#else
+        set;
+#endif
+    }
 
-    public required int Week { get; init; }
+    public
+#if NET8_0_OR_GREATER
+        required
+#endif
+        int Week
+    {
+        get;
+#if NET6_0_OR_GREATER
+        init;
+#else
+        set;
+#endif
+    }
 
-    public required int DayOfWeek { get; init; }
+    public
+#if NET8_0_OR_GREATER
+        required
+#endif
+        int DayOfWeek
+    {
+        get;
+#if NET6_0_OR_GREATER
+        init;
+#else
+        set;
+#endif
+    }
 
-    public required DateOnly? StartDate { get; init; }
+    public
+#if NET8_0_OR_GREATER
+        required
+#endif
+#if NET6_0_OR_GREATER
+        DateOnly?
+#else
+        DateTime?
+#endif
+        StartDate
+    {
+        get;
+#if NET6_0_OR_GREATER
+        init;
+#else
+        set;
+#endif
+    }
 
-    public required DateOnly? EndDate { get; init; }
+    public
+#if NET8_0_OR_GREATER
+        required
+#endif
+#if NET6_0_OR_GREATER
+        DateOnly?
+#else
+        DateTime?
+#endif
+        EndDate
+    {
+        get;
+#if NET6_0_OR_GREATER
+        init;
+#else
+        set;
+#endif
+    }
 
-    public required DateOnly[]? ExceptionDate { get; init; }
+    public
+#if NET8_0_OR_GREATER
+        required
+#endif
+#if NET6_0_OR_GREATER
+        DateOnly[]?
+#else
+        DateTime[]?
+#endif
+        ExceptionDate
+    {
+        get;
+#if NET6_0_OR_GREATER
+        init;
+#else
+        set;
+#endif
+    }
 }

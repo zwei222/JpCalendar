@@ -12,7 +12,9 @@ public sealed class FileFixture : IAsyncLifetime
 
     public FileFixture()
     {
+#if NET6_0_OR_GREATER
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+#endif
         this.shiftJisEncoding = Encoding.GetEncoding("Shift_JIS");
 
         var services = new ServiceCollection();
@@ -41,7 +43,11 @@ public sealed class FileFixture : IAsyncLifetime
             2048,
             true);
 
+#if NET6_0_OR_GREATER
         await using (fileStream.ConfigureAwait(false))
+#else
+        using (fileStream)
+#endif
         {
             using var streamReader = new StreamReader(fileStream, this.shiftJisEncoding);
 
@@ -65,7 +71,11 @@ public sealed class FileFixture : IAsyncLifetime
 
                 this.JapaneseNationalHolidayDataList.Add(new JapaneseNationalHolidayData
                 {
+#if NET6_0_OR_GREATER
                     Date = DateOnly.Parse(split[0]),
+#else
+                    Date = DateTime.Parse(split[0]),
+#endif
                     Name = split[1],
                 });
             }
