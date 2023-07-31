@@ -1,8 +1,16 @@
-# DotNetTemplate
-NET project template.
+# JpCalendar
+This library is for processing related to the Japanese calendar.
+
+Processing related to Japanese national holidays and the era name based on the contents listed in the following URLs and the CSV files that can be downloaded.
+
+- [‘–¯‚Ìj“ú‚É‚Â‚¢‚Ä - “àŠt•{](https://www8.cao.go.jp/chosei/shukujitsu/gaiyou.html)
 
 ## Features
-Here is a description of the features of this package and other information.
+The features of this library are described below.
+
+- A function to obtain the era number (Japanese calendar) based on a given date.
+- A function to obtain the "Rokuyo" based on a given date.
+- A function to retrieve the name of a Japanese holiday based on a given date.
 
 # Author
 [@zwei_222](https://twitter.com/zwei_222)
