@@ -10,7 +10,6 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/zwei222/JpCalendar.git</RepositoryUrl>
     <PackageProjectUrl>https://github.com/zwei222/JpCalendar</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/zwei222/JpCalendar/blob/main/LICENSE</PackageLicenseUrl>
     <Authors>zwei_222</Authors>
   </PropertyGroup>
 

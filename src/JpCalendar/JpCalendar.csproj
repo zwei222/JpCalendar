@@ -5,9 +5,11 @@
     <Description>This library is for processing related to the Japanese calendar.</Description>
     <PackageReleaseNotes>First package released.</PackageReleaseNotes>
     <PackageTags>Japanese Calendar Holiday</PackageTags>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="\"/>
     <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
