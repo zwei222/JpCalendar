@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net6.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net7.0;net6.0;netstandard2.0</TargetFrameworks>
     <Description>This library is for processing related to the Japanese calendar.</Description>
     <PackageReleaseNotes>First package released.</PackageReleaseNotes>
     <PackageTags>Japanese Calendar Holiday</PackageTags>
