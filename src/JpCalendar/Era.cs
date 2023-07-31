@@ -7,7 +7,7 @@ public
     struct Era
 {
     public
-#if NET8_0_OR_GREATER
+#if NET7_0_OR_GREATER
         required
 #endif
         string Name
@@ -21,7 +21,7 @@ public
     }
 
     public
-#if NET8_0_OR_GREATER
+#if NET7_0_OR_GREATER
         required
 #endif
         string Abbreviation
@@ -35,7 +35,7 @@ public
     }
 
     public
-#if NET8_0_OR_GREATER
+#if NET7_0_OR_GREATER
         required
 #endif
         char Symbol

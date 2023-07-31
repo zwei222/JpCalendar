@@ -7,7 +7,7 @@ internal
     struct NationalHoliday
 {
     public
-#if NET8_0_OR_GREATER
+#if NET7_0_OR_GREATER
         required
 #endif
         bool IsFixedDay
@@ -21,7 +21,7 @@ internal
     }
 
     public
-#if NET8_0_OR_GREATER
+#if NET7_0_OR_GREATER
         required
 #endif
         bool IsFixedWeek
@@ -35,7 +35,7 @@ internal
     }
 
     public
-#if NET8_0_OR_GREATER
+#if NET7_0_OR_GREATER
         required
 #endif
         int TransferPeriod
@@ -49,7 +49,7 @@ internal
     }
 
     public
-#if NET8_0_OR_GREATER
+#if NET7_0_OR_GREATER
         required
 #endif
         string Name
@@ -63,7 +63,7 @@ internal
     }
 
     public
-#if NET8_0_OR_GREATER
+#if NET7_0_OR_GREATER
         required
 #endif
         int Month
@@ -77,7 +77,7 @@ internal
     }
 
     public
-#if NET8_0_OR_GREATER
+#if NET7_0_OR_GREATER
         required
 #endif
         int Day
@@ -91,7 +91,7 @@ internal
     }
 
     public
-#if NET8_0_OR_GREATER
+#if NET7_0_OR_GREATER
         required
 #endif
         int Week
@@ -105,7 +105,7 @@ internal
     }
 
     public
-#if NET8_0_OR_GREATER
+#if NET7_0_OR_GREATER
         required
 #endif
         int DayOfWeek
@@ -119,7 +119,7 @@ internal
     }
 
     public
-#if NET8_0_OR_GREATER
+#if NET7_0_OR_GREATER
         required
 #endif
 #if NET6_0_OR_GREATER
@@ -138,7 +138,7 @@ internal
     }
 
     public
-#if NET8_0_OR_GREATER
+#if NET7_0_OR_GREATER
         required
 #endif
 #if NET6_0_OR_GREATER
@@ -157,7 +157,7 @@ internal
     }
 
     public
-#if NET8_0_OR_GREATER
+#if NET7_0_OR_GREATER
         required
 #endif
 #if NET6_0_OR_GREATER
