@@ -3,7 +3,7 @@ This library is for processing related to the Japanese calendar.
 
 Processing related to Japanese national holidays and the era name based on the contents listed in the following URLs and the CSV files that can be downloaded.
 
-- [‘–¯‚Ìj“ú‚É‚Â‚¢‚Ä - “àŠt•{](https://www8.cao.go.jp/chosei/shukujitsu/gaiyou.html)
+- [å›½æ°‘ã®ç¥æ—¥ã«ã¤ã„ã¦ - å†…é–£åºœ](https://www8.cao.go.jp/chosei/shukujitsu/gaiyou.html)
 
 ## Features
 The features of this library are described below.
