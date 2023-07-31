@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net7.0</TargetFrameworks>
@@ -22,11 +22,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\JpCalendar\JpCalendar.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\Implementations\" />
-    <Folder Include="Resources\" />
   </ItemGroup>
 
   <ItemGroup>
