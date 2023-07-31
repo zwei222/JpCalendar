@@ -104,9 +104,9 @@ internal sealed partial class JpCalendarService : IJpCalendarService
     }
 #if NET6_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public string GetRokuyo(DateOnly dateOnly)
+    public string GetRokuyo(DateOnly date)
     {
-        return this.GetRokuyo(dateOnly.ToDateTime(TimeOnly.MinValue));
+        return this.GetRokuyo(date.ToDateTime(TimeOnly.MinValue));
     }
 #endif
 }
