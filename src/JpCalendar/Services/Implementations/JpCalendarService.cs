@@ -69,6 +69,14 @@ internal sealed partial class JpCalendarService : IJpCalendarService
         return this.japaneseCalendar.GetEra(dateTime);
     }
 
+#if NET6_0_OR_GREATER
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int GetEraIndex(DateOnly date)
+    {
+        return this.japaneseCalendar.GetEra(date.ToDateTime(TimeOnly.MinValue));
+    }
+#endif
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Era GetEra(int eraIndex)
     {
@@ -80,6 +88,14 @@ internal sealed partial class JpCalendarService : IJpCalendarService
     {
         return this.GetEra(this.GetEraIndex(dateTime));
     }
+
+#if NET6_0_OR_GREATER
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Era GetEra(DateOnly date)
+    {
+        return this.GetEra(this.GetEraIndex(date));
+    }
+#endif
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsLeapYear(int year)
@@ -104,6 +120,7 @@ internal sealed partial class JpCalendarService : IJpCalendarService
 
         return this.rokuyoDictionary[rokuyoIndex];
     }
+
 #if NET6_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string GetRokuyo(DateOnly date)

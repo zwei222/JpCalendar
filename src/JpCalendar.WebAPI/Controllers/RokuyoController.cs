@@ -6,14 +6,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace JpCalendar.WebAPI.Controllers;
 
 [ApiController]
-public sealed class NationalHolidayController : ControllerBase
+public class RokuyoController : ControllerBase
 {
-    private readonly ILogger<NationalHolidayController> logger;
+    private readonly ILogger<RokuyoController> logger;
 
     private readonly IJpCalendarService jpCalendarService;
 
-    public NationalHolidayController(
-        ILogger<NationalHolidayController> logger,
+    public RokuyoController(
+        ILogger<RokuyoController> logger,
         IJpCalendarService jpCalendarService)
     {
         this.logger = logger;
@@ -21,8 +21,8 @@ public sealed class NationalHolidayController : ControllerBase
     }
 
     [HttpGet]
-    [Route("api/national-holidays")]
-    [ProducesResponseType(typeof(IEnumerable<NationalHolidayDto>), (int)HttpStatusCode.OK)]
+    [Route("api/rokuyo")]
+    [ProducesResponseType(typeof(IEnumerable<RokuyoDto>), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     public IActionResult Get([FromQuery] string from, [FromQuery] string to)
@@ -36,26 +36,20 @@ public sealed class NationalHolidayController : ControllerBase
                 return this.BadRequest();
             }
 
-            var results = new List<NationalHolidayDto>();
+            var results = new List<RokuyoDto>();
             var currentDate = fromDate;
 
             while (currentDate <= toDate)
             {
-                var name = this.jpCalendarService.GetNationalHolidayName(currentDate);
+                var name = this.jpCalendarService.GetRokuyo(currentDate);
 
-                if (name is null)
-                {
-                    currentDate = currentDate.AddDays(1);
-                    continue;
-                }
-
-                var nationalHoliday = new NationalHolidayDto
+                var rokuyo = new RokuyoDto()
                 {
                     Value = name,
                     Date = currentDate,
                 };
 
-                results.Add(nationalHoliday);
+                results.Add(rokuyo);
                 currentDate = currentDate.AddDays(1);
             }
 
@@ -76,8 +70,8 @@ public sealed class NationalHolidayController : ControllerBase
     }
 
     [HttpGet]
-    [Route("api/national-holidays/{date}")]
-    [ProducesResponseType(typeof(NationalHolidayDto), (int)HttpStatusCode.OK)]
+    [Route("api/rokuyo/{date}")]
+    [ProducesResponseType(typeof(RokuyoDto), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     public IActionResult Get(string date)
@@ -89,17 +83,18 @@ public sealed class NationalHolidayController : ControllerBase
                 return this.BadRequest();
             }
 
-            var nationalHoliday = new NationalHolidayDto
+            var rokuyo = new RokuyoDto
             {
-                Value = this.jpCalendarService.GetNationalHolidayName(result), Date = result,
+                Value = this.jpCalendarService.GetRokuyo(result),
+                Date = result,
             };
 
-            if (nationalHoliday.Value is null)
+            if (rokuyo.Value is null)
             {
                 return this.NotFound();
             }
 
-            return this.Ok(nationalHoliday);
+            return this.Ok(rokuyo);
         }
         catch (Exception exception)
         {

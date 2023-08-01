@@ -16,6 +16,15 @@ public interface IJpCalendarService
     /// <returns>Japanese calendar index.</returns>
     int GetEraIndex(DateTime dateTime);
 
+#if NET6_0_OR_GREATER
+    /// <summary>
+    /// Obtains the index of the Japanese calendar to which the target date corresponds.
+    /// </summary>
+    /// <param name="date">Date for which the Japanese calendar index is to be obtained.</param>
+    /// <returns>Japanese calendar index.</returns>
+    int GetEraIndex(DateOnly date);
+#endif
+
     /// <summary>
     /// Obtains the Japanese calendar information corresponding to the specified Japanese calendar index.
     /// </summary>
@@ -29,6 +38,15 @@ public interface IJpCalendarService
     /// <param name="dateTime">Date for which the Japanese calendar information is to be retrieved.</param>
     /// <returns>Japanese calendar information.</returns>
     Era GetEra(DateTime dateTime);
+
+#if NET6_0_OR_GREATER
+    /// <summary>
+    /// Obtains Japanese calendar information for a given date.
+    /// </summary>
+    /// <param name="date">Date for which the Japanese calendar information is to be retrieved.</param>
+    /// <returns>Japanese calendar information.</returns>
+    Era GetEra(DateOnly date);
+#endif
 
     /// <summary>
     /// Get whether it is a leap year or not.
