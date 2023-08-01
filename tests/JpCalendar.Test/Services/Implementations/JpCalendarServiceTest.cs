@@ -44,7 +44,7 @@ public sealed class JpCalendarServiceTest : IClassFixture<FileFixture>
             while (true)
             {
                 // for debug
-                if (new DateTime(1997, 5, 4) == currentDate)
+                if (new DateTime(2021, 7, 24) == currentDate)
                 {
                     ;
                 }

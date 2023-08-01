@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Runtime.CompilerServices;
+using JpCalendar.Internals;
 
 namespace JpCalendar.Services.Implementations;
 
@@ -56,6 +57,7 @@ internal sealed partial class JpCalendarService : IJpCalendarService
                 });
         }
 
+        this.nationalHolidayList = new NationalHolidayList(this.GetNationalHolidays());
         this.InitializeNationalHolidays();
     }
 

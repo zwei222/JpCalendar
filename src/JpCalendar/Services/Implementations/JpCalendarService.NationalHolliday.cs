@@ -32,7 +32,7 @@ internal sealed partial class JpCalendarService
 #endif
         StartNationalHolidayByLaw = new(1988, 1, 1);
 
-    private readonly List<NationalHoliday> nationalHolidays = new();
+    private readonly NationalHolidayList nationalHolidayList;
 
     private readonly Dictionary<int, int> shunbunDayDictionary = new();
 
@@ -80,11 +80,7 @@ internal sealed partial class JpCalendarService
 #endif
             date)
     {
-#if NET6_0_OR_GREATER
-        foreach (var nationalHoliday in CollectionsMarshal.AsSpan(this.nationalHolidays))
-#else
-        foreach (var nationalHoliday in this.nationalHolidays)
-#endif
+        foreach (var nationalHoliday in this.nationalHolidayList.GetNationalHolidays(date.Month))
         {
             if (nationalHoliday.StartDate is not null &&
                 date < nationalHoliday.StartDate)
@@ -220,11 +216,7 @@ internal sealed partial class JpCalendarService
 #endif
             date)
     {
-#if NET6_0_OR_GREATER
-        foreach (var nationalHoliday in CollectionsMarshal.AsSpan(this.nationalHolidays))
-#else
-        foreach (var nationalHoliday in this.nationalHolidays)
-#endif
+        foreach (var nationalHoliday in this.nationalHolidayList.GetNationalHolidays(date.Month))
         {
             if (nationalHoliday.StartDate is not null &&
                 date < nationalHoliday.StartDate)
@@ -425,563 +417,597 @@ internal sealed partial class JpCalendarService
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void InitializeNationalHolidays()
     {
-        this.InitializeFixedDayOfNationalHolidays();
-        this.InitializeFixedWeekOfNationalHolidays();
         this.InitializeDayOfShunbun();
         this.InitializeDayOfShubun();
     }
 
-    private void InitializeFixedDayOfNationalHolidays()
+    private NationalHoliday[] GetNationalHolidays()
     {
-        this.nationalHolidays.Add(new NationalHoliday
+        return new[]
         {
-            IsFixedDay = true,
-            IsFixedWeek = false,
-            TransferPeriod = 1,
-            Name = "元日",
-            Month = 1,
-            Day = 1,
-            Week = -1,
-            DayOfWeek = -1,
-            StartDate = null,
-            EndDate = null,
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = true,
-            IsFixedWeek = false,
-            TransferPeriod = 1,
-            Name = "成人の日",
-            Month = 1,
-            Day = 15,
-            Week = -1,
-            DayOfWeek = -1,
-            StartDate = null,
-#if NET6_0_OR_GREATER
-            EndDate = new DateOnly(1999, 12, 31),
-#else
-            EndDate = new DateTime(1999, 12, 31),
-#endif
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = true,
-            IsFixedWeek = false,
-            TransferPeriod = 1,
-            Name = "建国記念日",
-            Month = 2,
-            Day = 11,
-            Week = -1,
-            DayOfWeek = -1,
-#if NET6_0_OR_GREATER
-            StartDate = new DateOnly(1967, 1, 1),
-#else
-            StartDate = new DateTime(1967, 1, 1),
-#endif
-            EndDate = null,
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = true,
-            IsFixedWeek = false,
-            TransferPeriod = 1,
-            Name = "天皇誕生日",
-            Month = 2,
-            Day = 23,
-            Week = -1,
-            DayOfWeek = -1,
-#if NET6_0_OR_GREATER
-            StartDate = new DateOnly(2020, 1, 1),
-#else
-            StartDate = new DateTime(2020, 1, 1),
-#endif
-            EndDate = null,
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = true,
-            IsFixedWeek = false,
-            TransferPeriod = 1,
-            Name = "大喪の礼",
-            Month = 2,
-            Day = 24,
-            Week = -1,
-            DayOfWeek = -1,
-#if NET6_0_OR_GREATER
-            StartDate = new DateOnly(1989, 2, 24),
-            EndDate = new DateOnly(1989, 2, 24),
-#else
-            StartDate = new DateTime(1989, 2, 24),
-            EndDate = new DateTime(1989, 2, 24),
-#endif
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = true,
-            IsFixedWeek = false,
-            TransferPeriod = 1,
-            Name = "結婚の儀",
-            Month = 4,
-            Day = 10,
-            Week = -1,
-            DayOfWeek = -1,
-#if NET6_0_OR_GREATER
-            StartDate = new DateOnly(1959, 4, 10),
-            EndDate = new DateOnly(1959, 4, 10),
-#else
-            StartDate = new DateTime(1959, 4, 10),
-            EndDate = new DateTime(1959, 4, 10),
-#endif
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = true,
-            IsFixedWeek = false,
-            TransferPeriod = 1,
-            Name = "天皇誕生日",
-            Month = 4,
-            Day = 29,
-            Week = -1,
-            DayOfWeek = -1,
-            StartDate = null,
-#if NET6_0_OR_GREATER
-            EndDate = new DateOnly(1988, 12, 31),
-#else
-            EndDate = new DateTime(1988, 12, 31),
-#endif
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = true,
-            IsFixedWeek = false,
-            TransferPeriod = 1,
-            Name = "みどりの日",
-            Month = 4,
-            Day = 29,
-            Week = -1,
-            DayOfWeek = -1,
-#if NET6_0_OR_GREATER
-            StartDate = new DateOnly(1989, 1, 1),
-            EndDate = new DateOnly(2006, 12, 31),
-#else
-            StartDate = new DateTime(1989, 1, 1),
-            EndDate = new DateTime(2006, 12, 31),
-#endif
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = true,
-            IsFixedWeek = false,
-            TransferPeriod = 1,
-            Name = "昭和の日",
-            Month = 4,
-            Day = 29,
-            Week = -1,
-            DayOfWeek = -1,
-#if NET6_0_OR_GREATER
-            StartDate = new DateOnly(2007, 1, 1),
-#else
-            StartDate = new DateTime(2007, 1, 1),
-#endif
-            EndDate = null,
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = true,
-            IsFixedWeek = false,
-            TransferPeriod = 1,
-            Name = "休日",
-            Month = 5,
-            Day = 1,
-            Week = -1,
-            DayOfWeek = -1,
-#if NET6_0_OR_GREATER
-            StartDate = new DateOnly(2019, 5, 1),
-            EndDate = new DateOnly(2019, 5, 1),
-#else
-            StartDate = new DateTime(2019, 5, 1),
-            EndDate = new DateTime(2019, 5, 1),
-#endif
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = true,
-            IsFixedWeek = false,
-            TransferPeriod = 1,
-            Name = "憲法記念日",
-            Month = 5,
-            Day = 3,
-            Week = -1,
-            DayOfWeek = -1,
-            StartDate = null,
-#if NET6_0_OR_GREATER
-            EndDate = new DateOnly(2006, 12, 31),
-#else
-            EndDate = new DateTime(2006, 12, 31),
-#endif
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = true,
-            IsFixedWeek = false,
-            TransferPeriod = 3,
-            Name = "憲法記念日",
-            Month = 5,
-            Day = 3,
-            Week = -1,
-            DayOfWeek = -1,
-#if NET6_0_OR_GREATER
-            StartDate = new DateOnly(2007, 1, 1),
-#else
-            StartDate = new DateTime(2007, 1, 1),
-#endif
-            EndDate = null,
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = true,
-            IsFixedWeek = false,
-            TransferPeriod = 2,
-            Name = "みどりの日",
-            Month = 5,
-            Day = 4,
-            Week = -1,
-            DayOfWeek = -1,
-#if NET6_0_OR_GREATER
-            StartDate = new DateOnly(2007, 1, 1),
-#else
-            StartDate = new DateTime(2007, 1, 1),
-#endif
-            EndDate = null,
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = true,
-            IsFixedWeek = false,
-            TransferPeriod = 1,
-            Name = "こどもの日",
-            Month = 5,
-            Day = 5,
-            Week = -1,
-            DayOfWeek = -1,
-            StartDate = null,
-            EndDate = null,
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = true,
-            IsFixedWeek = false,
-            TransferPeriod = 1,
-            Name = "結婚の儀",
-            Month = 6,
-            Day = 9,
-            Week = -1,
-            DayOfWeek = -1,
-#if NET6_0_OR_GREATER
-            StartDate = new DateOnly(1993, 6, 9),
-            EndDate = new DateOnly(1993, 6, 9),
-#else
-            StartDate = new DateTime(1993, 6, 9),
-            EndDate = new DateTime(1993, 6, 9),
-#endif
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = true,
-            IsFixedWeek = false,
-            TransferPeriod = 1,
-            Name = "海の日",
-            Month = 7,
-            Day = 20,
-            Week = -1,
-            DayOfWeek = -1,
-#if NET6_0_OR_GREATER
-            StartDate = new DateOnly(1996, 1, 1),
-            EndDate = new DateOnly(2002, 12, 31),
-#else
-            StartDate = new DateTime(1996, 1, 1),
-            EndDate = new DateTime(2002, 12, 31),
-#endif
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = true,
-            IsFixedWeek = false,
-            TransferPeriod = 1,
-            Name = "山の日",
-            Month = 8,
-            Day = 11,
-            Week = -1,
-            DayOfWeek = -1,
-#if NET6_0_OR_GREATER
-            StartDate = new DateOnly(2016, 1, 1),
-#else
-            StartDate = new DateTime(2016, 1, 1),
-#endif
-            EndDate = null,
-            ExceptionDate = new[]
+            new NationalHoliday
             {
-#if NET6_0_OR_GREATER
-                new DateOnly(2020, 8, 10),
-                new DateOnly(2021, 8, 8),
-#else
-                new DateTime(2020, 8, 10),
-                new DateTime(2021, 8, 8),
-#endif
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 1,
+                Name = "元日",
+                Month = 1,
+                Day = 1,
+                Week = -1,
+                DayOfWeek = -1,
+                StartDate = null,
+                EndDate = null,
+                ExceptionDate = null,
             },
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = true,
-            IsFixedWeek = false,
-            TransferPeriod = 1,
-            Name = "敬老の日",
-            Month = 9,
-            Day = 15,
-            Week = -1,
-            DayOfWeek = -1,
-#if NET6_0_OR_GREATER
-            StartDate = new DateOnly(1966, 1, 1),
-            EndDate = new DateOnly(2002, 12, 31),
-#else
-            StartDate = new DateTime(1966, 1, 1),
-            EndDate = new DateTime(2002, 12, 31),
-#endif
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = true,
-            IsFixedWeek = false,
-            TransferPeriod = 1,
-            Name = "体育の日",
-            Month = 10,
-            Day = 10,
-            Week = -1,
-            DayOfWeek = -1,
-#if NET6_0_OR_GREATER
-            StartDate = new DateOnly(1966, 1, 1),
-            EndDate = new DateOnly(1999, 12, 31),
-#else
-            StartDate = new DateTime(1966, 1, 1),
-            EndDate = new DateTime(1999, 12, 31),
-#endif
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = true,
-            IsFixedWeek = false,
-            TransferPeriod = 1,
-            Name = "即位礼正殿の儀",
-            Month = 10,
-            Day = 22,
-            Week = -1,
-            DayOfWeek = -1,
-#if NET6_0_OR_GREATER
-            StartDate = new DateOnly(2019, 10, 22),
-            EndDate = new DateOnly(2019, 10, 22),
-#else
-            StartDate = new DateTime(2019, 10, 22),
-            EndDate = new DateTime(2019, 10, 22),
-#endif
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = true,
-            IsFixedWeek = false,
-            TransferPeriod = 1,
-            Name = "文化の日",
-            Month = 11,
-            Day = 3,
-            Week = -1,
-            DayOfWeek = -1,
-            StartDate = null,
-            EndDate = null,
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = true,
-            IsFixedWeek = false,
-            TransferPeriod = 1,
-            Name = "即位礼正殿の儀",
-            Month = 11,
-            Day = 12,
-            Week = -1,
-            DayOfWeek = -1,
-#if NET6_0_OR_GREATER
-            StartDate = new DateOnly(1990, 11, 12),
-            EndDate = new DateOnly(1990, 11, 12),
-#else
-            StartDate = new DateTime(1990, 11, 12),
-            EndDate = new DateTime(1990, 11, 12),
-#endif
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = true,
-            IsFixedWeek = false,
-            TransferPeriod = 1,
-            Name = "勤労感謝の日",
-            Month = 11,
-            Day = 23,
-            Week = -1,
-            DayOfWeek = -1,
-            StartDate = null,
-            EndDate = null,
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = true,
-            IsFixedWeek = false,
-            TransferPeriod = 1,
-            Name = "天皇誕生日",
-            Month = 12,
-            Day = 23,
-            Week = -1,
-            DayOfWeek = -1,
-#if NET6_0_OR_GREATER
-            StartDate = new DateOnly(1989, 1, 1),
-            EndDate = new DateOnly(2018, 12, 31),
-#else
-            StartDate = new DateTime(1989, 1, 1),
-            EndDate = new DateTime(2018, 12, 31),
-#endif
-            ExceptionDate = null,
-        });
-    }
-
-    private void InitializeFixedWeekOfNationalHolidays()
-    {
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = false,
-            IsFixedWeek = true,
-            TransferPeriod = 1,
-            Name = "成人の日",
-            Month = 1,
-            Day = -1,
-            Week = 2,
-            DayOfWeek = 1,
-#if NET6_0_OR_GREATER
-            StartDate = new DateOnly(2000, 1, 1),
-#else
-            StartDate = new DateTime(2000, 1, 1),
-#endif
-            EndDate = null,
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = false,
-            IsFixedWeek = true,
-            TransferPeriod = 1,
-            Name = "海の日",
-            Month = 7,
-            Day = -1,
-            Week = 3,
-            DayOfWeek = 1,
-#if NET6_0_OR_GREATER
-            StartDate = new DateOnly(2003, 1, 1),
-#else
-            StartDate = new DateTime(2003, 1, 1),
-#endif
-            EndDate = null,
-            ExceptionDate = new[]
+            new NationalHoliday
             {
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 1,
+                Name = "成人の日",
+                Month = 1,
+                Day = 15,
+                Week = -1,
+                DayOfWeek = -1,
+                StartDate = null,
 #if NET6_0_OR_GREATER
-                new DateOnly(2020, 7, 23),
-                new DateOnly(2021, 7, 22),
+                EndDate = new DateOnly(1999, 12, 31),
 #else
-                new DateTime(2020, 7, 23),
-                new DateTime(2021, 7, 22),
+                EndDate = new DateTime(1999, 12, 31),
 #endif
+                ExceptionDate = null,
             },
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = false,
-            IsFixedWeek = true,
-            TransferPeriod = 1,
-            Name = "敬老の日",
-            Month = 9,
-            Day = -1,
-            Week = 3,
-            DayOfWeek = 1,
-#if NET6_0_OR_GREATER
-            StartDate = new DateOnly(2003, 1, 1),
-#else
-            StartDate = new DateTime(2003, 1, 1),
-#endif
-            EndDate = null,
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = false,
-            IsFixedWeek = true,
-            TransferPeriod = 1,
-            Name = "体育の日",
-            Month = 10,
-            Day = -1,
-            Week = 2,
-            DayOfWeek = 1,
-#if NET6_0_OR_GREATER
-            StartDate = new DateOnly(2000, 1, 1),
-            EndDate = new DateOnly(2019, 12, 31),
-#else
-            StartDate = new DateTime(2000, 1, 1),
-            EndDate = new DateTime(2019, 12, 31),
-#endif
-            ExceptionDate = null,
-        });
-        this.nationalHolidays.Add(new NationalHoliday
-        {
-            IsFixedDay = false,
-            IsFixedWeek = true,
-            TransferPeriod = 1,
-            Name = "スポーツの日",
-            Month = 10,
-            Day = -1,
-            Week = 2,
-            DayOfWeek = 1,
-#if NET6_0_OR_GREATER
-            StartDate = new DateOnly(2020, 1, 1),
-#else
-            StartDate = new DateTime(2020, 1, 1),
-#endif
-            EndDate = null,
-            ExceptionDate = new[]
+            new NationalHoliday
             {
+                IsFixedDay = false,
+                IsFixedWeek = true,
+                TransferPeriod = 1,
+                Name = "成人の日",
+                Month = 1,
+                Day = -1,
+                Week = 2,
+                DayOfWeek = 1,
 #if NET6_0_OR_GREATER
-                new DateOnly(2020, 7, 24),
-                new DateOnly(2021, 7, 23),
+                StartDate = new DateOnly(2000, 1, 1),
 #else
-                new DateTime(2020, 7, 24),
-                new DateTime(2021, 7, 23),
+                StartDate = new DateTime(2000, 1, 1),
 #endif
+                EndDate = null,
+                ExceptionDate = null,
             },
-        });
+            new NationalHoliday
+            {
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 1,
+                Name = "建国記念日",
+                Month = 2,
+                Day = 11,
+                Week = -1,
+                DayOfWeek = -1,
+#if NET6_0_OR_GREATER
+                StartDate = new DateOnly(1967, 1, 1),
+#else
+                StartDate = new DateTime(1967, 1, 1),
+#endif
+                EndDate = null,
+                ExceptionDate = null,
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 1,
+                Name = "天皇誕生日",
+                Month = 2,
+                Day = 23,
+                Week = -1,
+                DayOfWeek = -1,
+#if NET6_0_OR_GREATER
+                StartDate = new DateOnly(2020, 1, 1),
+#else
+                StartDate = new DateTime(2020, 1, 1),
+#endif
+                EndDate = null,
+                ExceptionDate = null,
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 1,
+                Name = "大喪の礼",
+                Month = 2,
+                Day = 24,
+                Week = -1,
+                DayOfWeek = -1,
+#if NET6_0_OR_GREATER
+                StartDate = new DateOnly(1989, 2, 24),
+                EndDate = new DateOnly(1989, 2, 24),
+#else
+                StartDate = new DateTime(1989, 2, 24),
+                EndDate = new DateTime(1989, 2, 24),
+#endif
+                ExceptionDate = null,
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 1,
+                Name = "結婚の儀",
+                Month = 4,
+                Day = 10,
+                Week = -1,
+                DayOfWeek = -1,
+#if NET6_0_OR_GREATER
+                StartDate = new DateOnly(1959, 4, 10),
+                EndDate = new DateOnly(1959, 4, 10),
+#else
+                StartDate = new DateTime(1959, 4, 10),
+                EndDate = new DateTime(1959, 4, 10),
+#endif
+                ExceptionDate = null,
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 1,
+                Name = "天皇誕生日",
+                Month = 4,
+                Day = 29,
+                Week = -1,
+                DayOfWeek = -1,
+                StartDate = null,
+#if NET6_0_OR_GREATER
+                EndDate = new DateOnly(1988, 12, 31),
+#else
+                EndDate = new DateTime(1988, 12, 31),
+#endif
+                ExceptionDate = null,
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 1,
+                Name = "みどりの日",
+                Month = 4,
+                Day = 29,
+                Week = -1,
+                DayOfWeek = -1,
+#if NET6_0_OR_GREATER
+                StartDate = new DateOnly(1989, 1, 1),
+                EndDate = new DateOnly(2006, 12, 31),
+#else
+                StartDate = new DateTime(1989, 1, 1),
+                EndDate = new DateTime(2006, 12, 31),
+#endif
+                ExceptionDate = null,
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 1,
+                Name = "昭和の日",
+                Month = 4,
+                Day = 29,
+                Week = -1,
+                DayOfWeek = -1,
+#if NET6_0_OR_GREATER
+                StartDate = new DateOnly(2007, 1, 1),
+#else
+                StartDate = new DateTime(2007, 1, 1),
+#endif
+                EndDate = null,
+                ExceptionDate = null,
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 1,
+                Name = "休日",
+                Month = 5,
+                Day = 1,
+                Week = -1,
+                DayOfWeek = -1,
+#if NET6_0_OR_GREATER
+                StartDate = new DateOnly(2019, 5, 1),
+                EndDate = new DateOnly(2019, 5, 1),
+#else
+                StartDate = new DateTime(2019, 5, 1),
+                EndDate = new DateTime(2019, 5, 1),
+#endif
+                ExceptionDate = null,
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 1,
+                Name = "憲法記念日",
+                Month = 5,
+                Day = 3,
+                Week = -1,
+                DayOfWeek = -1,
+                StartDate = null,
+#if NET6_0_OR_GREATER
+                EndDate = new DateOnly(2006, 12, 31),
+#else
+                EndDate = new DateTime(2006, 12, 31),
+#endif
+                ExceptionDate = null,
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 3,
+                Name = "憲法記念日",
+                Month = 5,
+                Day = 3,
+                Week = -1,
+                DayOfWeek = -1,
+#if NET6_0_OR_GREATER
+                StartDate = new DateOnly(2007, 1, 1),
+#else
+                StartDate = new DateTime(2007, 1, 1),
+#endif
+                EndDate = null,
+                ExceptionDate = null,
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 2,
+                Name = "みどりの日",
+                Month = 5,
+                Day = 4,
+                Week = -1,
+                DayOfWeek = -1,
+#if NET6_0_OR_GREATER
+                StartDate = new DateOnly(2007, 1, 1),
+#else
+                StartDate = new DateTime(2007, 1, 1),
+#endif
+                EndDate = null,
+                ExceptionDate = null,
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 1,
+                Name = "こどもの日",
+                Month = 5,
+                Day = 5,
+                Week = -1,
+                DayOfWeek = -1,
+                StartDate = null,
+                EndDate = null,
+                ExceptionDate = null,
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 1,
+                Name = "結婚の儀",
+                Month = 6,
+                Day = 9,
+                Week = -1,
+                DayOfWeek = -1,
+#if NET6_0_OR_GREATER
+                StartDate = new DateOnly(1993, 6, 9),
+                EndDate = new DateOnly(1993, 6, 9),
+#else
+                StartDate = new DateTime(1993, 6, 9),
+                EndDate = new DateTime(1993, 6, 9),
+#endif
+                ExceptionDate = null,
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 1,
+                Name = "海の日",
+                Month = 7,
+                Day = 20,
+                Week = -1,
+                DayOfWeek = -1,
+#if NET6_0_OR_GREATER
+                StartDate = new DateOnly(1996, 1, 1),
+                EndDate = new DateOnly(2002, 12, 31),
+#else
+                StartDate = new DateTime(1996, 1, 1),
+                EndDate = new DateTime(2002, 12, 31),
+#endif
+                ExceptionDate = null,
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = false,
+                IsFixedWeek = true,
+                TransferPeriod = 1,
+                Name = "海の日",
+                Month = 7,
+                Day = -1,
+                Week = 3,
+                DayOfWeek = 1,
+#if NET6_0_OR_GREATER
+                StartDate = new DateOnly(2003, 1, 1),
+#else
+                StartDate = new DateTime(2003, 1, 1),
+#endif
+                EndDate = null,
+                ExceptionDate = new[]
+                {
+#if NET6_0_OR_GREATER
+                    new DateOnly(2020, 7, 23),
+                    new DateOnly(2021, 7, 22),
+#else
+                    new DateTime(2020, 7, 23),
+                    new DateTime(2021, 7, 22),
+#endif
+                },
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 1,
+                Name = "スポーツの日",
+                Month = 7,
+                Day = 24,
+                Week = -1,
+                DayOfWeek = -1,
+#if NET6_0_OR_GREATER
+                StartDate = new DateOnly(2020, 7, 24),
+                EndDate = new DateOnly(2020, 7, 24),
+#else
+                StartDate = new DateTime(2020, 7, 24),
+                EndDate = new DateTime(2020, 7, 24),
+#endif
+                ExceptionDate = null,
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 1,
+                Name = "スポーツの日",
+                Month = 7,
+                Day = 23,
+                Week = -1,
+                DayOfWeek = -1,
+#if NET6_0_OR_GREATER
+                StartDate = new DateOnly(2021, 7, 23),
+                EndDate = new DateOnly(2021, 7, 23),
+#else
+                StartDate = new DateTime(2021, 7, 23),
+                EndDate = new DateTime(2021, 7, 23),
+#endif
+                ExceptionDate = null,
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 1,
+                Name = "山の日",
+                Month = 8,
+                Day = 11,
+                Week = -1,
+                DayOfWeek = -1,
+#if NET6_0_OR_GREATER
+                StartDate = new DateOnly(2016, 1, 1),
+#else
+                StartDate = new DateTime(2016, 1, 1),
+#endif
+                EndDate = null,
+                ExceptionDate = new[]
+                {
+#if NET6_0_OR_GREATER
+                    new DateOnly(2020, 8, 10), new DateOnly(2021, 8, 8),
+#else
+                    new DateTime(2020, 8, 10),
+                    new DateTime(2021, 8, 8),
+#endif
+                },
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 1,
+                Name = "敬老の日",
+                Month = 9,
+                Day = 15,
+                Week = -1,
+                DayOfWeek = -1,
+#if NET6_0_OR_GREATER
+                StartDate = new DateOnly(1966, 1, 1),
+                EndDate = new DateOnly(2002, 12, 31),
+#else
+                StartDate = new DateTime(1966, 1, 1),
+                EndDate = new DateTime(2002, 12, 31),
+#endif
+                ExceptionDate = null,
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = false,
+                IsFixedWeek = true,
+                TransferPeriod = 1,
+                Name = "敬老の日",
+                Month = 9,
+                Day = -1,
+                Week = 3,
+                DayOfWeek = 1,
+#if NET6_0_OR_GREATER
+                StartDate = new DateOnly(2003, 1, 1),
+#else
+                StartDate = new DateTime(2003, 1, 1),
+#endif
+                EndDate = null,
+                ExceptionDate = null,
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 1,
+                Name = "体育の日",
+                Month = 10,
+                Day = 10,
+                Week = -1,
+                DayOfWeek = -1,
+#if NET6_0_OR_GREATER
+                StartDate = new DateOnly(1966, 1, 1),
+                EndDate = new DateOnly(1999, 12, 31),
+#else
+                StartDate = new DateTime(1966, 1, 1),
+                EndDate = new DateTime(1999, 12, 31),
+#endif
+                ExceptionDate = null,
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = false,
+                IsFixedWeek = true,
+                TransferPeriod = 1,
+                Name = "体育の日",
+                Month = 10,
+                Day = -1,
+                Week = 2,
+                DayOfWeek = 1,
+#if NET6_0_OR_GREATER
+                StartDate = new DateOnly(2000, 1, 1),
+                EndDate = new DateOnly(2019, 12, 31),
+#else
+                StartDate = new DateTime(2000, 1, 1),
+                EndDate = new DateTime(2019, 12, 31),
+#endif
+                ExceptionDate = null,
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = false,
+                IsFixedWeek = true,
+                TransferPeriod = 1,
+                Name = "スポーツの日",
+                Month = 10,
+                Day = -1,
+                Week = 2,
+                DayOfWeek = 1,
+#if NET6_0_OR_GREATER
+                StartDate = new DateOnly(2020, 1, 1),
+#else
+                StartDate = new DateTime(2020, 1, 1),
+#endif
+                EndDate = null,
+                ExceptionDate = new[]
+                {
+#if NET6_0_OR_GREATER
+                    new DateOnly(2020, 7, 24),
+                    new DateOnly(2021, 7, 23),
+#else
+                    new DateTime(2020, 7, 24),
+                    new DateTime(2021, 7, 23),
+#endif
+                },
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 1,
+                Name = "即位礼正殿の儀",
+                Month = 10,
+                Day = 22,
+                Week = -1,
+                DayOfWeek = -1,
+#if NET6_0_OR_GREATER
+                StartDate = new DateOnly(2019, 10, 22),
+                EndDate = new DateOnly(2019, 10, 22),
+#else
+                StartDate = new DateTime(2019, 10, 22),
+                EndDate = new DateTime(2019, 10, 22),
+#endif
+                ExceptionDate = null,
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 1,
+                Name = "文化の日",
+                Month = 11,
+                Day = 3,
+                Week = -1,
+                DayOfWeek = -1,
+                StartDate = null,
+                EndDate = null,
+                ExceptionDate = null,
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 1,
+                Name = "即位礼正殿の儀",
+                Month = 11,
+                Day = 12,
+                Week = -1,
+                DayOfWeek = -1,
+#if NET6_0_OR_GREATER
+                StartDate = new DateOnly(1990, 11, 12),
+                EndDate = new DateOnly(1990, 11, 12),
+#else
+                StartDate = new DateTime(1990, 11, 12),
+                EndDate = new DateTime(1990, 11, 12),
+#endif
+                ExceptionDate = null,
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 1,
+                Name = "勤労感謝の日",
+                Month = 11,
+                Day = 23,
+                Week = -1,
+                DayOfWeek = -1,
+                StartDate = null,
+                EndDate = null,
+                ExceptionDate = null,
+            },
+            new NationalHoliday
+            {
+                IsFixedDay = true,
+                IsFixedWeek = false,
+                TransferPeriod = 1,
+                Name = "天皇誕生日",
+                Month = 12,
+                Day = 23,
+                Week = -1,
+                DayOfWeek = -1,
+#if NET6_0_OR_GREATER
+                StartDate = new DateOnly(1989, 1, 1),
+                EndDate = new DateOnly(2018, 12, 31),
+#else
+                StartDate = new DateTime(1989, 1, 1),
+                EndDate = new DateTime(2018, 12, 31),
+#endif
+                ExceptionDate = null,
+            },
+        };
     }
 
     private void InitializeDayOfShunbun()

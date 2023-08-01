@@ -9,7 +9,7 @@ public sealed class FileFixture : IAsyncLifetime
     /// <summary>
     /// Download csv from https://www8.cao.go.jp/chosei/shukujitsu/gaiyou.html
     /// </summary>
-    private const string JapaneseNationalHolidayDataFilePath = @"./Resources/syukujitsu.csv";
+    private const string JapaneseNationalHolidayDataFilePath = @"./syukujitsu.csv";
 
     private readonly Encoding shiftJisEncoding;
 

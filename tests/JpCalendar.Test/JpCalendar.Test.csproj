@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Resources\syukujitsu.csv">
+    <None Include="$(MSBuildThisFileDirectory)\..\..\docs\syukujitsu.csv" PackagePath="\">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
