@@ -1,6 +1,6 @@
 # JpCalendar
-![NuGet](https://img.shields.io/nuget/v/JpCalendar)
-![GitHub Actions](https://github.com/zwei222/JpCalendar/actions/workflows/build.yml/badge.svg)
+[![NuGet](https://img.shields.io/nuget/v/JpCalendar)](https://www.nuget.org/packages/JpCalendar)
+[![GitHub Actions](https://github.com/zwei222/JpCalendar/actions/workflows/build.yml/badge.svg)](https://github.com/zwei222/JpCalendar/actions/workflows/build.yml)
 
 This library is for processing related to the Japanese calendar.
 
