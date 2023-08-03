@@ -36,17 +36,17 @@ In addition to the library, the ASP.NET Core Web API project exists in this repo
 By running the Web API project, it is possible to see the library in action on the Swagger UI.
 
 ### Era
-![image](https://github.com/zwei222/JpCalendar/assets/46480712/e50001e0-0af1-4bbd-a185-b9086f4d3de5)
+![image](https://user-images.githubusercontent.com/46480712/257435783-e50001e0-0af1-4bbd-a185-b9086f4d3de5.png)
 
 ### National holiday
-![image](https://github.com/zwei222/JpCalendar/assets/46480712/19eb63cd-b5cb-4b66-a727-dab76366e253)
+![image](https://user-images.githubusercontent.com/46480712/257436523-19eb63cd-b5cb-4b66-a727-dab76366e253.png)
 
-![image](https://github.com/zwei222/JpCalendar/assets/46480712/3771597a-93cb-45b5-b9ed-1f1a51037071)
+![image](https://user-images.githubusercontent.com/46480712/257436895-3771597a-93cb-45b5-b9ed-1f1a51037071.png)
 
 ### Rokuyo
-![image](https://github.com/zwei222/JpCalendar/assets/46480712/c27c43fe-86e3-4a06-a89b-11e1809a6e5c)
+![image](https://user-images.githubusercontent.com/46480712/257437281-c27c43fe-86e3-4a06-a89b-11e1809a6e5c.png)
 
-![image](https://github.com/zwei222/JpCalendar/assets/46480712/a52bb544-468e-4dcf-97b3-1b5f7ee4d16a)
+![image](https://user-images.githubusercontent.com/46480712/257437585-a52bb544-468e-4dcf-97b3-1b5f7ee4d16a.png)
 
 # Author
 [@zwei_222](https://twitter.com/zwei_222)
