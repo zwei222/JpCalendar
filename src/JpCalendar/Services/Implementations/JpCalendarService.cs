@@ -58,7 +58,6 @@ internal sealed partial class JpCalendarService : IJpCalendarService
         }
 
         this.nationalHolidayList = new NationalHolidayList(this.GetNationalHolidays());
-        this.InitializeNationalHolidays();
     }
 
     public CultureInfo JapaneseCultureInfo { get; }

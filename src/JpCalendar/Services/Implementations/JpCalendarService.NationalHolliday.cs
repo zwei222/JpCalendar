@@ -1,7 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-#if NET6_0_OR_GREATER
-using System.Runtime.InteropServices;
-#endif
 using JpCalendar.Internals;
 
 namespace JpCalendar.Services.Implementations;
@@ -12,9 +9,11 @@ internal sealed partial class JpCalendarService
 
     private const string NationalHolidayByLaw = "国民の休日";
 
-    private const int MonthOfShunbun = 3;
+    private const int MonthOfVernalEquinoxDay = 3;
 
-    private const int MonthOfShubun = 9;
+    private const int MonthOfAutumnalEquinoxDay = 9;
+
+    private const double FractionOfYear = 0.242194;
 
     private static readonly
 #if NET6_0_OR_GREATER
@@ -33,10 +32,6 @@ internal sealed partial class JpCalendarService
         StartNationalHolidayByLaw = new(1988, 1, 1);
 
     private readonly NationalHolidayList nationalHolidayList;
-
-    private readonly Dictionary<int, int> shunbunDayDictionary = new();
-
-    private readonly Dictionary<int, int> shubunDayDictionary = new();
 
 #if NET6_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -165,7 +160,7 @@ internal sealed partial class JpCalendarService
             }
         }
 
-        if (this.IsDayOfShunbun(date.Year, date.Month, date.Day, out var isSubstitutionDay))
+        if (this.IsVernalEquinoxDay(date.Year, date.Month, date.Day, out var isSubstitutionDay))
         {
             return "春分の日";
         }
@@ -175,7 +170,7 @@ internal sealed partial class JpCalendarService
             return SubstitutionDay;
         }
 
-        if (this.IsDayOfShubun(date.Year, date.Month, date.Day, out isSubstitutionDay))
+        if (this.IsAutumnalEquinoxDay(date.Year, date.Month, date.Day, out isSubstitutionDay))
         {
             return "秋分の日";
         }
@@ -301,7 +296,7 @@ internal sealed partial class JpCalendarService
             }
         }
 
-        if (this.IsDayOfShunbun(date.Year, date.Month, date.Day, out var isSubstitutionDay))
+        if (this.IsVernalEquinoxDay(date.Year, date.Month, date.Day, out var isSubstitutionDay))
         {
             return true;
         }
@@ -311,7 +306,7 @@ internal sealed partial class JpCalendarService
             return true;
         }
 
-        if (this.IsDayOfShubun(date.Year, date.Month, date.Day, out isSubstitutionDay))
+        if (this.IsAutumnalEquinoxDay(date.Year, date.Month, date.Day, out isSubstitutionDay))
         {
             return true;
         }
@@ -324,39 +319,23 @@ internal sealed partial class JpCalendarService
         return false;
     }
 
-    private bool IsDayOfShunbun(int year, int month, int day, out bool isSubstitutionDay)
+    private bool IsVernalEquinoxDay(int year, int month, int day, out bool isSubstitutionDay)
     {
         isSubstitutionDay = false;
 
-        if (month != MonthOfShunbun)
-        {
-            return false;
-        }
+        var vernalEquinoxDay = this.GetVernalEquinoxDay(year, month);
 
-#if NET6_0_OR_GREATER
-        ref var dayOfShunbun = ref CollectionsMarshal.GetValueRefOrNullRef(
-            this.shunbunDayDictionary,
-            year);
-
-        if (Unsafe.IsNullRef(ref dayOfShunbun))
-#else
-        if (this.shunbunDayDictionary.TryGetValue(year, out var dayOfShunbun) is false)
-#endif
-        {
-            return false;
-        }
-
-        if (day == dayOfShunbun)
+        if (day == vernalEquinoxDay)
         {
             return true;
         }
 
-        if (day - 1 == dayOfShunbun)
+        if (day - 1 == vernalEquinoxDay)
         {
 #if NET6_0_OR_GREATER
-            var date  = new DateOnly(year, month, dayOfShunbun);
+            var date  = new DateOnly(year, month, vernalEquinoxDay);
 #else
-            var date  = new DateTime(year, month, dayOfShunbun);
+            var date  = new DateTime(year, month, vernalEquinoxDay);
 #endif
 
             if (date.DayOfWeek is DayOfWeek.Sunday &&
@@ -369,39 +348,60 @@ internal sealed partial class JpCalendarService
         return false;
     }
 
-    private bool IsDayOfShubun(int year, int month, int day, out bool isSubstitutionDay)
+    private int GetVernalEquinoxDay(int year, int month)
+    {
+        if (month != MonthOfVernalEquinoxDay)
+        {
+            return -1;
+        }
+
+        double dateOfPassage;
+        int leapYear;
+
+        if (year < 1980)
+        {
+            dateOfPassage = 20.8357;
+            leapYear = 1983;
+        }
+        else if (year < 2100)
+        {
+            dateOfPassage = 20.8431;
+            leapYear = 1980;
+        }
+        else if (year < 2200)
+        {
+            dateOfPassage = 21.8510;
+            leapYear = 1980;
+        }
+        else
+        {
+            dateOfPassage = 21.8484;
+            leapYear = 1980;
+        }
+
+        var value = Math.Truncate(dateOfPassage + FractionOfYear * (year - 1980)) -
+                    Math.Truncate((year - leapYear) / 4D);
+
+        return (int)value;
+    }
+
+    private bool IsAutumnalEquinoxDay(int year, int month, int day, out bool isSubstitutionDay)
     {
         isSubstitutionDay = false;
 
-        if (month != MonthOfShubun)
-        {
-            return false;
-        }
+        var autumnalEquinoxDay = this.GetAutumnalEquinoxDay(year, month);
 
-#if NET6_0_OR_GREATER
-        ref var dayOfShubun = ref CollectionsMarshal.GetValueRefOrNullRef(
-            this.shubunDayDictionary,
-            year);
-
-        if (Unsafe.IsNullRef(ref dayOfShubun))
-#else
-        if (this.shubunDayDictionary.TryGetValue(year, out var dayOfShubun) is false)
-#endif
-        {
-            return false;
-        }
-
-        if (day == dayOfShubun)
+        if (day == autumnalEquinoxDay)
         {
             return true;
         }
 
-        if (day - 1 == dayOfShubun)
+        if (day - 1 == autumnalEquinoxDay)
         {
 #if NET6_0_OR_GREATER
-            var date = new DateOnly(year, month, dayOfShubun);
+            var date = new DateOnly(year, month, autumnalEquinoxDay);
 #else
-            var date = new DateTime(year, month, dayOfShubun);
+            var date = new DateTime(year, month, autumnalEquinoxDay);
 #endif
 
             if (date.DayOfWeek is DayOfWeek.Sunday &&
@@ -414,11 +414,41 @@ internal sealed partial class JpCalendarService
         return false;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void InitializeNationalHolidays()
+    private int GetAutumnalEquinoxDay(int year, int month)
     {
-        this.InitializeDayOfShunbun();
-        this.InitializeDayOfShubun();
+        if (month != MonthOfAutumnalEquinoxDay)
+        {
+            return -1;
+        }
+
+        double dateOfPassage;
+        int leapYear;
+
+        if (year < 1980)
+        {
+            dateOfPassage = 23.2588;
+            leapYear = 1983;
+        }
+        else if (year < 2100)
+        {
+            dateOfPassage = 23.2488;
+            leapYear = 1980;
+        }
+        else if (year < 2200)
+        {
+            dateOfPassage = 24.2488;
+            leapYear = 1980;
+        }
+        else
+        {
+            dateOfPassage = 24.2488;
+            leapYear = 1980;
+        }
+
+        var value = Math.Truncate(dateOfPassage + FractionOfYear * (year - 1980)) -
+                    Math.Truncate((year - leapYear) / 4D);
+
+        return (int)value;
     }
 
     private NationalHoliday[] GetNationalHolidays()
@@ -1008,205 +1038,5 @@ internal sealed partial class JpCalendarService
                 ExceptionDate = null,
             },
         };
-    }
-
-    private void InitializeDayOfShunbun()
-    {
-        this.shunbunDayDictionary.Add(1955, 21);
-        this.shunbunDayDictionary.Add(1956, 21);
-        this.shunbunDayDictionary.Add(1957, 21);
-        this.shunbunDayDictionary.Add(1958, 21);
-        this.shunbunDayDictionary.Add(1959, 21);
-        this.shunbunDayDictionary.Add(1960, 20);
-        this.shunbunDayDictionary.Add(1961, 21);
-        this.shunbunDayDictionary.Add(1962, 21);
-        this.shunbunDayDictionary.Add(1963, 21);
-        this.shunbunDayDictionary.Add(1964, 20);
-        this.shunbunDayDictionary.Add(1965, 21);
-        this.shunbunDayDictionary.Add(1966, 21);
-        this.shunbunDayDictionary.Add(1967, 21);
-        this.shunbunDayDictionary.Add(1968, 20);
-        this.shunbunDayDictionary.Add(1969, 21);
-        this.shunbunDayDictionary.Add(1970, 21);
-        this.shunbunDayDictionary.Add(1971, 21);
-        this.shunbunDayDictionary.Add(1972, 20);
-        this.shunbunDayDictionary.Add(1973, 21);
-        this.shunbunDayDictionary.Add(1974, 21);
-        this.shunbunDayDictionary.Add(1975, 21);
-        this.shunbunDayDictionary.Add(1976, 20);
-        this.shunbunDayDictionary.Add(1977, 21);
-        this.shunbunDayDictionary.Add(1978, 21);
-        this.shunbunDayDictionary.Add(1979, 21);
-        this.shunbunDayDictionary.Add(1980, 20);
-        this.shunbunDayDictionary.Add(1981, 21);
-        this.shunbunDayDictionary.Add(1982, 21);
-        this.shunbunDayDictionary.Add(1983, 21);
-        this.shunbunDayDictionary.Add(1984, 20);
-        this.shunbunDayDictionary.Add(1985, 21);
-        this.shunbunDayDictionary.Add(1986, 21);
-        this.shunbunDayDictionary.Add(1987, 21);
-        this.shunbunDayDictionary.Add(1988, 20);
-        this.shunbunDayDictionary.Add(1989, 21);
-        this.shunbunDayDictionary.Add(1990, 21);
-        this.shunbunDayDictionary.Add(1991, 21);
-        this.shunbunDayDictionary.Add(1992, 20);
-        this.shunbunDayDictionary.Add(1993, 20);
-        this.shunbunDayDictionary.Add(1994, 21);
-        this.shunbunDayDictionary.Add(1995, 21);
-        this.shunbunDayDictionary.Add(1996, 20);
-        this.shunbunDayDictionary.Add(1997, 20);
-        this.shunbunDayDictionary.Add(1998, 21);
-        this.shunbunDayDictionary.Add(1999, 21);
-        this.shunbunDayDictionary.Add(2000, 20);
-        this.shunbunDayDictionary.Add(2001, 20);
-        this.shunbunDayDictionary.Add(2002, 21);
-        this.shunbunDayDictionary.Add(2003, 21);
-        this.shunbunDayDictionary.Add(2004, 20);
-        this.shunbunDayDictionary.Add(2005, 20);
-        this.shunbunDayDictionary.Add(2006, 21);
-        this.shunbunDayDictionary.Add(2007, 21);
-        this.shunbunDayDictionary.Add(2008, 20);
-        this.shunbunDayDictionary.Add(2009, 20);
-        this.shunbunDayDictionary.Add(2010, 21);
-        this.shunbunDayDictionary.Add(2011, 21);
-        this.shunbunDayDictionary.Add(2012, 20);
-        this.shunbunDayDictionary.Add(2013, 20);
-        this.shunbunDayDictionary.Add(2014, 21);
-        this.shunbunDayDictionary.Add(2015, 21);
-        this.shunbunDayDictionary.Add(2016, 20);
-        this.shunbunDayDictionary.Add(2017, 20);
-        this.shunbunDayDictionary.Add(2018, 21);
-        this.shunbunDayDictionary.Add(2019, 21);
-        this.shunbunDayDictionary.Add(2020, 20);
-        this.shunbunDayDictionary.Add(2021, 20);
-        this.shunbunDayDictionary.Add(2022, 21);
-        this.shunbunDayDictionary.Add(2023, 21);
-        this.shunbunDayDictionary.Add(2024, 20);
-        this.shunbunDayDictionary.Add(2025, 20);
-        this.shunbunDayDictionary.Add(2026, 20);
-        this.shunbunDayDictionary.Add(2027, 21);
-        this.shunbunDayDictionary.Add(2028, 20);
-        this.shunbunDayDictionary.Add(2029, 20);
-        this.shunbunDayDictionary.Add(2030, 20);
-        this.shunbunDayDictionary.Add(2031, 21);
-        this.shunbunDayDictionary.Add(2032, 20);
-        this.shunbunDayDictionary.Add(2033, 20);
-        this.shunbunDayDictionary.Add(2034, 20);
-        this.shunbunDayDictionary.Add(2035, 21);
-        this.shunbunDayDictionary.Add(2036, 20);
-        this.shunbunDayDictionary.Add(2037, 20);
-        this.shunbunDayDictionary.Add(2038, 20);
-        this.shunbunDayDictionary.Add(2039, 21);
-        this.shunbunDayDictionary.Add(2040, 20);
-        this.shunbunDayDictionary.Add(2041, 20);
-        this.shunbunDayDictionary.Add(2042, 20);
-        this.shunbunDayDictionary.Add(2043, 21);
-        this.shunbunDayDictionary.Add(2044, 20);
-        this.shunbunDayDictionary.Add(2045, 20);
-        this.shunbunDayDictionary.Add(2046, 20);
-        this.shunbunDayDictionary.Add(2047, 21);
-        this.shunbunDayDictionary.Add(2048, 20);
-        this.shunbunDayDictionary.Add(2049, 20);
-        this.shunbunDayDictionary.Add(2050, 20);
-    }
-
-    private void InitializeDayOfShubun()
-    {
-        this.shubunDayDictionary.Add(1955, 24);
-        this.shubunDayDictionary.Add(1956, 23);
-        this.shubunDayDictionary.Add(1957, 23);
-        this.shubunDayDictionary.Add(1958, 23);
-        this.shubunDayDictionary.Add(1959, 24);
-        this.shubunDayDictionary.Add(1960, 23);
-        this.shubunDayDictionary.Add(1961, 23);
-        this.shubunDayDictionary.Add(1962, 23);
-        this.shubunDayDictionary.Add(1963, 24);
-        this.shubunDayDictionary.Add(1964, 23);
-        this.shubunDayDictionary.Add(1965, 23);
-        this.shubunDayDictionary.Add(1966, 23);
-        this.shubunDayDictionary.Add(1967, 24);
-        this.shubunDayDictionary.Add(1968, 23);
-        this.shubunDayDictionary.Add(1969, 23);
-        this.shubunDayDictionary.Add(1970, 23);
-        this.shubunDayDictionary.Add(1971, 24);
-        this.shubunDayDictionary.Add(1972, 23);
-        this.shubunDayDictionary.Add(1973, 23);
-        this.shubunDayDictionary.Add(1974, 23);
-        this.shubunDayDictionary.Add(1975, 24);
-        this.shubunDayDictionary.Add(1976, 23);
-        this.shubunDayDictionary.Add(1977, 23);
-        this.shubunDayDictionary.Add(1978, 23);
-        this.shubunDayDictionary.Add(1979, 24);
-        this.shubunDayDictionary.Add(1980, 23);
-        this.shubunDayDictionary.Add(1981, 23);
-        this.shubunDayDictionary.Add(1982, 23);
-        this.shubunDayDictionary.Add(1983, 23);
-        this.shubunDayDictionary.Add(1984, 23);
-        this.shubunDayDictionary.Add(1985, 23);
-        this.shubunDayDictionary.Add(1986, 23);
-        this.shubunDayDictionary.Add(1987, 23);
-        this.shubunDayDictionary.Add(1988, 23);
-        this.shubunDayDictionary.Add(1989, 23);
-        this.shubunDayDictionary.Add(1990, 23);
-        this.shubunDayDictionary.Add(1991, 23);
-        this.shubunDayDictionary.Add(1992, 23);
-        this.shubunDayDictionary.Add(1993, 23);
-        this.shubunDayDictionary.Add(1994, 23);
-        this.shubunDayDictionary.Add(1995, 23);
-        this.shubunDayDictionary.Add(1996, 23);
-        this.shubunDayDictionary.Add(1997, 23);
-        this.shubunDayDictionary.Add(1998, 23);
-        this.shubunDayDictionary.Add(1999, 23);
-        this.shubunDayDictionary.Add(2000, 23);
-        this.shubunDayDictionary.Add(2001, 23);
-        this.shubunDayDictionary.Add(2002, 23);
-        this.shubunDayDictionary.Add(2003, 23);
-        this.shubunDayDictionary.Add(2004, 23);
-        this.shubunDayDictionary.Add(2005, 23);
-        this.shubunDayDictionary.Add(2006, 23);
-        this.shubunDayDictionary.Add(2007, 23);
-        this.shubunDayDictionary.Add(2008, 23);
-        this.shubunDayDictionary.Add(2009, 23);
-        this.shubunDayDictionary.Add(2010, 23);
-        this.shubunDayDictionary.Add(2011, 23);
-        this.shubunDayDictionary.Add(2012, 22);
-        this.shubunDayDictionary.Add(2013, 23);
-        this.shubunDayDictionary.Add(2014, 23);
-        this.shubunDayDictionary.Add(2015, 23);
-        this.shubunDayDictionary.Add(2016, 22);
-        this.shubunDayDictionary.Add(2017, 23);
-        this.shubunDayDictionary.Add(2018, 23);
-        this.shubunDayDictionary.Add(2019, 23);
-        this.shubunDayDictionary.Add(2020, 22);
-        this.shubunDayDictionary.Add(2021, 23);
-        this.shubunDayDictionary.Add(2022, 23);
-        this.shubunDayDictionary.Add(2023, 23);
-        this.shubunDayDictionary.Add(2024, 22);
-        this.shubunDayDictionary.Add(2025, 23);
-        this.shubunDayDictionary.Add(2026, 23);
-        this.shubunDayDictionary.Add(2027, 23);
-        this.shubunDayDictionary.Add(2028, 22);
-        this.shubunDayDictionary.Add(2029, 23);
-        this.shubunDayDictionary.Add(2030, 23);
-        this.shubunDayDictionary.Add(2031, 23);
-        this.shubunDayDictionary.Add(2032, 22);
-        this.shubunDayDictionary.Add(2033, 23);
-        this.shubunDayDictionary.Add(2034, 23);
-        this.shubunDayDictionary.Add(2035, 23);
-        this.shubunDayDictionary.Add(2036, 22);
-        this.shubunDayDictionary.Add(2037, 23);
-        this.shubunDayDictionary.Add(2038, 23);
-        this.shubunDayDictionary.Add(2039, 23);
-        this.shubunDayDictionary.Add(2040, 22);
-        this.shubunDayDictionary.Add(2041, 23);
-        this.shubunDayDictionary.Add(2042, 23);
-        this.shubunDayDictionary.Add(2043, 23);
-        this.shubunDayDictionary.Add(2044, 22);
-        this.shubunDayDictionary.Add(2045, 22);
-        this.shubunDayDictionary.Add(2046, 23);
-        this.shubunDayDictionary.Add(2047, 23);
-        this.shubunDayDictionary.Add(2048, 22);
-        this.shubunDayDictionary.Add(2049, 22);
-        this.shubunDayDictionary.Add(2050, 23);
     }
 }
