@@ -358,7 +358,17 @@ internal sealed partial class JpCalendarService
         double dateOfPassage;
         int leapYear;
 
-        if (year < 1980)
+        if (year < 1851)
+        {
+            // Cannot be calculated before 1850.
+            return -1;
+        }
+        else if (year < 1900)
+        {
+            dateOfPassage = 19.8277;
+            leapYear = 1983;
+        }
+        else if (year < 1980)
         {
             dateOfPassage = 20.8357;
             leapYear = 1983;
@@ -368,15 +378,15 @@ internal sealed partial class JpCalendarService
             dateOfPassage = 20.8431;
             leapYear = 1980;
         }
-        else if (year < 2200)
+        else if (year < 2151)
         {
             dateOfPassage = 21.8510;
             leapYear = 1980;
         }
         else
         {
-            dateOfPassage = 21.8484;
-            leapYear = 1980;
+            // Cannot be calculated after 2150.
+            return -1;
         }
 
         var value = Math.Truncate(dateOfPassage + FractionOfYear * (year - 1980)) -
@@ -424,7 +434,17 @@ internal sealed partial class JpCalendarService
         double dateOfPassage;
         int leapYear;
 
-        if (year < 1980)
+        if (year < 1850)
+        {
+            // Cannot be calculated before 1850.
+            return -1;
+        }
+        else if (year < 1900)
+        {
+            dateOfPassage = 22.2588;
+            leapYear = 1983;
+        }
+        else if (year < 1980)
         {
             dateOfPassage = 23.2588;
             leapYear = 1983;
@@ -434,15 +454,15 @@ internal sealed partial class JpCalendarService
             dateOfPassage = 23.2488;
             leapYear = 1980;
         }
-        else if (year < 2200)
+        else if (year < 2151)
         {
             dateOfPassage = 24.2488;
             leapYear = 1980;
         }
         else
         {
-            dateOfPassage = 24.2488;
-            leapYear = 1980;
+            // Cannot be calculated after 2150.
+            return -1;
         }
 
         var value = Math.Truncate(dateOfPassage + FractionOfYear * (year - 1980)) -

@@ -174,4 +174,29 @@ internal
         set;
 #endif
     }
+
+    public override int GetHashCode()
+    {
+#if NET6_0_OR_GREATER
+        return HashCode.Combine(
+            this.IsFixedDay,
+            this.IsFixedWeek,
+            this.TransferPeriod,
+            this.Name,
+            this.Month,
+            this.Day,
+            this.Week,
+            this.DayOfWeek);
+#else
+        return (
+            this.IsFixedDay,
+            this.IsFixedWeek,
+            this.TransferPeriod,
+            this.Name,
+            this.Month,
+            this.Day,
+            this.Week,
+            this.DayOfWeek).GetHashCode();
+#endif
+    }
 }
