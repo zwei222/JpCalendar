@@ -31,6 +31,66 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddJpCalendar();
 ```
 
+Set the member in the class to be used.
+
+```csharp
+public class ConsoleApp
+{
+    private readonly IJpCalendarService jpCalendarService;
+
+    public ConsoleApp(IJpCalendarService jpCalendarService)
+    {
+        this.jpCalendarService = jpCalendarService;
+    }
+}
+```
+
+## Usage
+### Era
+Get the Japanese calendar name corresponding to the date passed to `GetEra(date)`.
+
+```csharp
+private string ToJapaneseString(DateTime date, string format)
+{
+    return $"{this.jpCalendarService.GetEra(date).Name}{date.ToString(format, this.jpCalendarService.JapaneseCultureInfo)}";
+}
+```
+
+```
+# date <- 2023-08-07
+令和5年08月07日
+```
+
+### National holiday
+Get the name of the holiday corresponding to the date passed to `GetNationalHolidayName(date)`. Returns `null` if the date is not a national holiday.
+
+```csharp
+private string GetJapaneseNationalHoliday(DateTime date)
+{
+    return this.jpCalendarService.GetNationalHolidayName(date);
+}
+```
+
+```
+# date <- 2023-08-11
+山の日
+```
+
+### Rokuyo
+Get the "Rokuyo" corresponding to the date passed to `GetRokuyo(date)`.
+
+```csharp
+private string GetRokuyo(DateTime date)
+{
+    return this.jpCalendarService.GetRokuyo(date);
+}
+```
+
+```
+# date <- 2023-08-07
+友引
+```
+
 ## Examples
 In addition to the library, the ASP.NET Core Web API project exists in this repository.
 By running the Web API project, it is possible to see the library in action on the Swagger UI.
