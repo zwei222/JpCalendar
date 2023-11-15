@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using JpCalendar.Services;
 using JpCalendar.WebAPI.Dto;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,19 +9,14 @@ public sealed class NationalHolidayController : ControllerBase
 {
     private readonly ILogger<NationalHolidayController> logger;
 
-    private readonly IJpCalendarService jpCalendarService;
-
-    public NationalHolidayController(
-        ILogger<NationalHolidayController> logger,
-        IJpCalendarService jpCalendarService)
+    public NationalHolidayController(ILogger<NationalHolidayController> logger)
     {
         this.logger = logger;
-        this.jpCalendarService = jpCalendarService;
     }
 
     [HttpGet]
     [Route("api/national-holidays")]
-    [ProducesResponseType(typeof(IEnumerable<NationalHolidayDto>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(NationalHolidayDto[]), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     public IActionResult Get([FromQuery] string from, [FromQuery] string to)
@@ -41,7 +35,7 @@ public sealed class NationalHolidayController : ControllerBase
 
             while (currentDate <= toDate)
             {
-                var name = this.jpCalendarService.GetNationalHolidayName(currentDate);
+                var name = Calendar.GetNationalHolidayName(currentDate);
 
                 if (name is null)
                 {
@@ -64,7 +58,7 @@ public sealed class NationalHolidayController : ControllerBase
                 return this.NotFound();
             }
 
-            return this.Ok(results);
+            return this.Ok(results.ToArray());
         }
         catch (Exception exception)
         {
@@ -91,7 +85,7 @@ public sealed class NationalHolidayController : ControllerBase
 
             var nationalHoliday = new NationalHolidayDto
             {
-                Value = this.jpCalendarService.GetNationalHolidayName(result), Date = result,
+                Value = Calendar.GetNationalHolidayName(result), Date = result,
             };
 
             if (nationalHoliday.Value is null)

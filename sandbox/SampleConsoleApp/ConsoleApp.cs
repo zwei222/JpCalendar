@@ -1,16 +1,9 @@
-﻿using JpCalendar.Services;
+﻿using JpCalendar;
 
 namespace SampleConsoleApp;
 
 public class ConsoleApp
 {
-    private readonly IJpCalendarService jpCalendarService;
-
-    public ConsoleApp(IJpCalendarService jpCalendarService)
-    {
-        this.jpCalendarService = jpCalendarService;
-    }
-
     public void ShowJapaneseCalendar()
     {
         DateTime date;
@@ -38,24 +31,24 @@ public class ConsoleApp
 
     private string ToJapaneseString(DateTime date, string format)
     {
-        return $"{this.jpCalendarService.GetEra(date).Name}{date.ToString(format, this.jpCalendarService.JapaneseCultureInfo)}";
+        return $"{Calendar.GetEra(date).Name}{date.ToString(format, Calendar.JapaneseCultureInfo)}";
     }
 
     private void ShowJapaneseNationalHoliday(DateTime date)
     {
-        if (this.jpCalendarService.IsNationalHoliday(date) is false)
+        if (Calendar.IsNationalHoliday(date) is false)
         {
             Console.WriteLine($"{date:yyyy-MM-dd} is not a japanese national holiday.");
             return;
         }
 
-        var name = this.jpCalendarService.GetNationalHolidayName(date);
+        var name = Calendar.GetNationalHolidayName(date);
 
         Console.WriteLine(name);
     }
 
     private string GetRokuyo(DateTime date)
     {
-        return this.jpCalendarService.GetRokuyo(date);
+        return Calendar.GetRokuyo(date);
     }
 }

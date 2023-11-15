@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using JpCalendar.Services;
 using JpCalendar.WebAPI.Dto;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,19 +9,14 @@ public class RokuyoController : ControllerBase
 {
     private readonly ILogger<RokuyoController> logger;
 
-    private readonly IJpCalendarService jpCalendarService;
-
-    public RokuyoController(
-        ILogger<RokuyoController> logger,
-        IJpCalendarService jpCalendarService)
+    public RokuyoController(ILogger<RokuyoController> logger)
     {
         this.logger = logger;
-        this.jpCalendarService = jpCalendarService;
     }
 
     [HttpGet]
     [Route("api/rokuyo")]
-    [ProducesResponseType(typeof(IEnumerable<RokuyoDto>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(RokuyoDto[]), (int)HttpStatusCode.OK)]
     [ProducesResponseType((int)HttpStatusCode.NotFound)]
     [ProducesResponseType((int)HttpStatusCode.BadRequest)]
     public IActionResult Get([FromQuery] string from, [FromQuery] string to)
@@ -41,7 +35,7 @@ public class RokuyoController : ControllerBase
 
             while (currentDate <= toDate)
             {
-                var name = this.jpCalendarService.GetRokuyo(currentDate);
+                var name = Calendar.GetRokuyo(currentDate);
 
                 var rokuyo = new RokuyoDto()
                 {
@@ -58,7 +52,7 @@ public class RokuyoController : ControllerBase
                 return this.NotFound();
             }
 
-            return this.Ok(results);
+            return this.Ok(results.ToArray());
         }
         catch (Exception exception)
         {
@@ -85,7 +79,7 @@ public class RokuyoController : ControllerBase
 
             var rokuyo = new RokuyoDto
             {
-                Value = this.jpCalendarService.GetRokuyo(result),
+                Value = Calendar.GetRokuyo(result),
                 Date = result,
             };
 

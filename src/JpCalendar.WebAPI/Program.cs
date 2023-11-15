@@ -1,8 +1,14 @@
-﻿using JpCalendar;
+﻿using JpCalendar.WebAPI.Dto.JsonSerializerContexts;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddJpCalendar();
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.TypeInfoResolverChain.Insert(0, EraJsonSerializerContext.Default);
+    options.SerializerOptions.TypeInfoResolverChain.Insert(0, NationalHolidayJsonSerializerContext.Default);
+    options.SerializerOptions.TypeInfoResolverChain.Insert(0, NationalHolidaysJsonSerializerContext.Default);
+});
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

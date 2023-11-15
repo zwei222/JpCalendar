@@ -1,9 +1,9 @@
-﻿using System.Runtime.CompilerServices;
-using JpCalendar.Internals;
+﻿using JpCalendar.Internals;
+using System.Runtime.CompilerServices;
 
-namespace JpCalendar.Services.Implementations;
+namespace JpCalendar;
 
-internal sealed partial class JpCalendarService
+public static partial class Calendar
 {
     private const string SubstitutionDay = "振替休日";
 
@@ -31,17 +31,17 @@ internal sealed partial class JpCalendarService
 #endif
         StartNationalHolidayByLaw = new(1988, 1, 1);
 
-    private readonly NationalHolidayList nationalHolidayList;
+    private static readonly NationalHolidayList NationalHolidayList;
 
 #if NET6_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsNationalHoliday(DateTime dateTime)
+    public static bool IsNationalHoliday(DateTime dateTime)
     {
-        return this.IsNationalHoliday(DateOnly.FromDateTime(dateTime));
+        return IsNationalHoliday(DateOnly.FromDateTime(dateTime));
     }
 #endif
 
-    public bool IsNationalHoliday(
+    public static bool IsNationalHoliday(
 #if NET6_0_OR_GREATER
         DateOnly
 #else
@@ -49,25 +49,25 @@ internal sealed partial class JpCalendarService
 #endif
             date)
     {
-        var isNationalHoliday = this.IsNationalHolidayInner(date);
+        var isNationalHoliday = IsNationalHolidayInner(date);
 
         if (isNationalHoliday)
         {
             return true;
         }
 
-        return this.IsNationalHolidayByLaw(date);
+        return IsNationalHolidayByLaw(date);
     }
 
 #if NET6_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public string? GetNationalHolidayName(DateTime dateTime)
+    public static string? GetNationalHolidayName(DateTime dateTime)
     {
-        return this.GetNationalHolidayName(DateOnly.FromDateTime(dateTime));
+        return GetNationalHolidayName(DateOnly.FromDateTime(dateTime));
     }
 #endif
 
-    public string? GetNationalHolidayName(
+    public static string? GetNationalHolidayName(
 #if NET6_0_OR_GREATER
         DateOnly
 #else
@@ -75,7 +75,7 @@ internal sealed partial class JpCalendarService
 #endif
             date)
     {
-        foreach (var nationalHoliday in this.nationalHolidayList.GetNationalHolidays(date.Month))
+        foreach (var nationalHoliday in NationalHolidayList.GetNationalHolidays(date.Month))
         {
             if (nationalHoliday.StartDate is not null &&
                 date < nationalHoliday.StartDate)
@@ -160,7 +160,7 @@ internal sealed partial class JpCalendarService
             }
         }
 
-        if (this.IsVernalEquinoxDay(date.Year, date.Month, date.Day, out var isSubstitutionDay))
+        if (IsVernalEquinoxDay(date.Year, date.Month, date.Day, out var isSubstitutionDay))
         {
             return "春分の日";
         }
@@ -170,7 +170,7 @@ internal sealed partial class JpCalendarService
             return SubstitutionDay;
         }
 
-        if (this.IsAutumnalEquinoxDay(date.Year, date.Month, date.Day, out isSubstitutionDay))
+        if (IsAutumnalEquinoxDay(date.Year, date.Month, date.Day, out isSubstitutionDay))
         {
             return "秋分の日";
         }
@@ -180,7 +180,7 @@ internal sealed partial class JpCalendarService
             return SubstitutionDay;
         }
 
-        if (this.IsNationalHolidayByLaw(date))
+        if (IsNationalHolidayByLaw(date))
         {
             return NationalHolidayByLaw;
         }
@@ -189,7 +189,7 @@ internal sealed partial class JpCalendarService
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool IsNationalHolidayByLaw(
+    private static bool IsNationalHolidayByLaw(
 #if NET6_0_OR_GREATER
         DateOnly
 #else
@@ -197,13 +197,13 @@ internal sealed partial class JpCalendarService
 #endif
             date)
     {
-        return this.IsNationalHolidayInner(date.AddDays(-1)) &&
-               this.IsNationalHolidayInner(date.AddDays(1)) &&
+        return IsNationalHolidayInner(date.AddDays(-1)) &&
+               IsNationalHolidayInner(date.AddDays(1)) &&
                date.DayOfWeek is not DayOfWeek.Sunday &&
                date >= StartNationalHolidayByLaw;
     }
 
-    private bool IsNationalHolidayInner(
+    private static bool IsNationalHolidayInner(
 #if NET6_0_OR_GREATER
         DateOnly
 #else
@@ -211,7 +211,7 @@ internal sealed partial class JpCalendarService
 #endif
             date)
     {
-        foreach (var nationalHoliday in this.nationalHolidayList.GetNationalHolidays(date.Month))
+        foreach (var nationalHoliday in NationalHolidayList.GetNationalHolidays(date.Month))
         {
             if (nationalHoliday.StartDate is not null &&
                 date < nationalHoliday.StartDate)
@@ -296,7 +296,7 @@ internal sealed partial class JpCalendarService
             }
         }
 
-        if (this.IsVernalEquinoxDay(date.Year, date.Month, date.Day, out var isSubstitutionDay))
+        if (IsVernalEquinoxDay(date.Year, date.Month, date.Day, out var isSubstitutionDay))
         {
             return true;
         }
@@ -306,7 +306,7 @@ internal sealed partial class JpCalendarService
             return true;
         }
 
-        if (this.IsAutumnalEquinoxDay(date.Year, date.Month, date.Day, out isSubstitutionDay))
+        if (IsAutumnalEquinoxDay(date.Year, date.Month, date.Day, out isSubstitutionDay))
         {
             return true;
         }
@@ -319,11 +319,11 @@ internal sealed partial class JpCalendarService
         return false;
     }
 
-    private bool IsVernalEquinoxDay(int year, int month, int day, out bool isSubstitutionDay)
+    private static bool IsVernalEquinoxDay(int year, int month, int day, out bool isSubstitutionDay)
     {
         isSubstitutionDay = false;
 
-        var vernalEquinoxDay = this.GetVernalEquinoxDay(year, month);
+        var vernalEquinoxDay = GetVernalEquinoxDay(year, month);
 
         if (day == vernalEquinoxDay)
         {
@@ -333,7 +333,7 @@ internal sealed partial class JpCalendarService
         if (day - 1 == vernalEquinoxDay)
         {
 #if NET6_0_OR_GREATER
-            var date  = new DateOnly(year, month, vernalEquinoxDay);
+            var date = new DateOnly(year, month, vernalEquinoxDay);
 #else
             var date  = new DateTime(year, month, vernalEquinoxDay);
 #endif
@@ -348,7 +348,7 @@ internal sealed partial class JpCalendarService
         return false;
     }
 
-    private int GetVernalEquinoxDay(int year, int month)
+    private static int GetVernalEquinoxDay(int year, int month)
     {
         if (month != MonthOfVernalEquinoxDay)
         {
@@ -395,11 +395,11 @@ internal sealed partial class JpCalendarService
         return (int)value;
     }
 
-    private bool IsAutumnalEquinoxDay(int year, int month, int day, out bool isSubstitutionDay)
+    private static bool IsAutumnalEquinoxDay(int year, int month, int day, out bool isSubstitutionDay)
     {
         isSubstitutionDay = false;
 
-        var autumnalEquinoxDay = this.GetAutumnalEquinoxDay(year, month);
+        var autumnalEquinoxDay = GetAutumnalEquinoxDay(year, month);
 
         if (day == autumnalEquinoxDay)
         {
@@ -424,7 +424,7 @@ internal sealed partial class JpCalendarService
         return false;
     }
 
-    private int GetAutumnalEquinoxDay(int year, int month)
+    private static int GetAutumnalEquinoxDay(int year, int month)
     {
         if (month != MonthOfAutumnalEquinoxDay)
         {
@@ -471,7 +471,7 @@ internal sealed partial class JpCalendarService
         return (int)value;
     }
 
-    private NationalHoliday[] GetNationalHolidays()
+    private static NationalHoliday[] GetNationalHolidays()
     {
         return new[]
         {

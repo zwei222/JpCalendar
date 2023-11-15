@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace JpCalendar.Test;
@@ -19,15 +18,8 @@ public sealed class FileFixture : IAsyncLifetime
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif
         this.shiftJisEncoding = Encoding.GetEncoding("Shift_JIS");
-
-        var services = new ServiceCollection();
-
-        services.AddJpCalendar();
-        this.ServiceProvider = services.BuildServiceProvider();
         this.JapaneseNationalHolidayDataList = new List<JapaneseNationalHolidayData>();
     }
-
-    public IServiceProvider ServiceProvider { get; }
 
     public IList<JapaneseNationalHolidayData> JapaneseNationalHolidayDataList { get; }
 

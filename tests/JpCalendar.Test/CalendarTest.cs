@@ -1,19 +1,14 @@
-﻿using JpCalendar.Services;
-using Microsoft.Extensions.DependencyInjection;
-using Xunit;
+﻿using Xunit;
 
-namespace JpCalendar.Test.Services.Implementations;
+namespace JpCalendar.Test;
 
-public sealed class JpCalendarServiceTest : IClassFixture<FileFixture>
+public sealed class CalendarTest : IClassFixture<FileFixture>
 {
     private readonly FileFixture fileFixture;
 
-    private readonly IJpCalendarService jpCalendarService;
-
-    public JpCalendarServiceTest(FileFixture fileFixture)
+    public CalendarTest(FileFixture fileFixture)
     {
         this.fileFixture = fileFixture;
-        this.jpCalendarService = fileFixture.ServiceProvider.GetRequiredService<IJpCalendarService>();
     }
 
     [Fact(DisplayName = "Is holiday")]
@@ -27,7 +22,7 @@ public sealed class JpCalendarServiceTest : IClassFixture<FileFixture>
                 ;
             }
 
-            if (this.jpCalendarService.IsNationalHoliday(holiday.Date) is false)
+            if (Calendar.IsNationalHoliday(holiday.Date) is false)
             {
                 Assert.Fail($"{holiday.Date} is national holiday. ({holiday.Name})");
             }
@@ -55,7 +50,7 @@ public sealed class JpCalendarServiceTest : IClassFixture<FileFixture>
                     break;
                 }
 
-                if (this.jpCalendarService.IsNationalHoliday(currentDate))
+                if (Calendar.IsNationalHoliday(currentDate))
                 {
                     Assert.Fail($"{currentDate} is not national holiday.");
                 }

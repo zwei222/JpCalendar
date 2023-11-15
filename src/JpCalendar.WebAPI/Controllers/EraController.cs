@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using JpCalendar.Services;
 using JpCalendar.WebAPI.Dto;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,14 +9,9 @@ public sealed class EraController : ControllerBase
 {
     private readonly ILogger<EraController> logger;
 
-    private readonly IJpCalendarService jpCalendarService;
-
-    public EraController(
-        ILogger<EraController> logger,
-        IJpCalendarService jpCalendarService)
+    public EraController(ILogger<EraController> logger)
     {
         this.logger = logger;
-        this.jpCalendarService = jpCalendarService;
     }
 
     [HttpGet]
@@ -38,7 +32,7 @@ public sealed class EraController : ControllerBase
                 return this.BadRequest();
             }
 
-            var era = this.jpCalendarService.GetEra(result);
+            var era = Calendar.GetEra(result);
             string prefix;
 
             if (isAbbreviation)
@@ -56,7 +50,7 @@ public sealed class EraController : ControllerBase
 
             return this.Ok(new EraDto
             {
-                Value = $"{prefix}{result.ToString(format, this.jpCalendarService.JapaneseCultureInfo)}",
+                Value = $"{prefix}{result.ToString(format, Calendar.JapaneseCultureInfo)}",
                 Date = result,
             });
         }
