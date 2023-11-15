@@ -22,29 +22,6 @@ Install the NuGet package as follows.
 dotnet add package JpCalendar
 ```
 
-`JpCalendar` can be DI by `Generic Host`. Register for DI as follows.
-
-```csharp
-using JpCalendar;
-
-var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddJpCalendar();
-```
-
-Set the member in the class to be used.
-
-```csharp
-public class ConsoleApp
-{
-    private readonly IJpCalendarService jpCalendarService;
-
-    public ConsoleApp(IJpCalendarService jpCalendarService)
-    {
-        this.jpCalendarService = jpCalendarService;
-    }
-}
-```
-
 ## Usage
 ### Era
 Get the Japanese calendar name corresponding to the date passed to `GetEra(date)`.
@@ -52,7 +29,7 @@ Get the Japanese calendar name corresponding to the date passed to `GetEra(date)
 ```csharp
 private string ToJapaneseString(DateTime date, string format)
 {
-    return $"{this.jpCalendarService.GetEra(date).Name}{date.ToString(format, this.jpCalendarService.JapaneseCultureInfo)}";
+    return $"{Calendar.GetEra(date).Name}{date.ToString(format, Calendar.JapaneseCultureInfo)}";
 }
 ```
 
@@ -67,7 +44,7 @@ Get the name of the holiday corresponding to the date passed to `GetNationalHoli
 ```csharp
 private string GetJapaneseNationalHoliday(DateTime date)
 {
-    return this.jpCalendarService.GetNationalHolidayName(date);
+    return Calendar.GetNationalHolidayName(date);
 }
 ```
 
@@ -82,7 +59,7 @@ Get the "Rokuyo" corresponding to the date passed to `GetRokuyo(date)`.
 ```csharp
 private string GetRokuyo(DateTime date)
 {
-    return this.jpCalendarService.GetRokuyo(date);
+    return Calendar.GetRokuyo(date);
 }
 ```
 
