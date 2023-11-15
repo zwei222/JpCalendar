@@ -7,7 +7,7 @@ on:
 env:
   TARGET_PROJECT: ./src/JpCalendar/JpCalendar.csproj
   CONFIGURATION: Release
-  DOTNET_VERSION: 7.*
+  DOTNET_VERSION: 8
   OUTPUT_DIR: ./nuget
 
 jobs:

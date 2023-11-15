@@ -8,7 +8,7 @@ on:
 
 env:
   CONFIGURATION: Debug
-  DOTNET_VERSION: 7.*
+  DOTNET_VERSION: 8
 
 jobs:
   build:
