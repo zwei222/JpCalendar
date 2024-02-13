@@ -2,10 +2,11 @@
 
   <PropertyGroup>
     <TargetFrameworks>net8.0;net7.0;net6.0;netstandard2.0</TargetFrameworks>
-    <PackageVersion>0.7.0</PackageVersion>
+    <PackageVersion>1.0.0</PackageVersion>
     <Description>This library is for processing related to the Japanese calendar.</Description>
     <PackageReleaseNotes>The method of obtaining the vernal equinox and autumnal equinox has been changed.</PackageReleaseNotes>
     <PackageTags>Japanese Calendar Holiday</PackageTags>
+    <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
