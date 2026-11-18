@@ -8,7 +8,7 @@ on:
 
 env:
   CONFIGURATION: Debug
-  DOTNET_VERSION: 8
+  DOTNET_VERSION: 11.0.100
 
 jobs:
   build:
@@ -28,4 +28,4 @@ jobs:
       run: dotnet build --configuration ${{ env.CONFIGURATION }} --no-restore
 
     - name: Test
-      run: dotnet test --no-build --verbosity diagnostic
+      run: dotnet test tests/JpCalendar.Test/JpCalendar.Test.csproj --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal

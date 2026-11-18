@@ -1,12 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net7.0;net6.0;netstandard2.0</TargetFrameworks>
-    <PackageVersion>1.0.0</PackageVersion>
+    <TargetFrameworks>net10.0;net11.0;netstandard2.0</TargetFrameworks>
+    <PackageId>JpCalendar</PackageId>
+    <Version>2.0.0</Version>
     <Description>This library is for processing related to the Japanese calendar.</Description>
-    <PackageReleaseNotes>The method of obtaining the vernal equinox and autumnal equinox has been changed.</PackageReleaseNotes>
+    <PackageReleaseNotes>2.0.0 retargets the package to net10.0, net11.0 and netstandard2.0; the net6.0, net7.0 and net8.0 assets are no longer produced, and the netstandard2.0 asset does not expose the DateOnly overloads.</PackageReleaseNotes>
     <PackageTags>Japanese Calendar Holiday</PackageTags>
-    <IsAotCompatible>true</IsAotCompatible>
+    <!-- IsAotCompatible requires a supported .NET target; full AOT/trim analysis is not available for netstandard2.0. -->
+    <IsAotCompatible Condition="'$(TargetFramework)' != 'netstandard2.0'">true</IsAotCompatible>
+    <!-- CI builds ship deterministic PDBs with normalized (/_/) source paths instead of local absolute paths. -->
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">

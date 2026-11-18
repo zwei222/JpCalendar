@@ -1,84 +1,150 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using Xunit;
 
 namespace JpCalendar.Test;
 
+/// <summary>
+/// Loads the official Cabinet Office national holiday CSV
+/// (https://www8.cao.go.jp/chosei/shukujitsu/syukujitsu.csv) shipped with the tests.
+/// </summary>
 public sealed class FileFixture : IAsyncLifetime
 {
+    internal const string JapaneseNationalHolidayDataFileName = "syukujitsu.csv";
+
+    internal const string ExpectedHeader = "国民の祝日・休日月日,国民の祝日・休日名称";
+
+    /// <summary>First date covered by the checked fixture range (inclusive).</summary>
+    public static readonly DateOnly MinimumDate = new(1955, 1, 1);
+
     /// <summary>
-    /// Download csv from https://www8.cao.go.jp/chosei/shukujitsu/gaiyou.html
+    /// Last date covered by the checked fixture range (inclusive). The CSV ends on this date,
+    /// which is not the end of the calendar year 2027.
     /// </summary>
-    private const string JapaneseNationalHolidayDataFilePath = @"./syukujitsu.csv";
+    public static readonly DateOnly MaximumDate = new(2027, 11, 23);
 
-    private readonly Encoding shiftJisEncoding;
+    private static readonly Encoding ShiftJisEncoding = CreateShiftJisEncoding();
 
-    public FileFixture()
+    private readonly List<JapaneseNationalHolidayData> japaneseNationalHolidayDataList = new();
+
+    public IReadOnlyList<JapaneseNationalHolidayData> JapaneseNationalHolidayDataList => this.japaneseNationalHolidayDataList;
+
+    public async ValueTask InitializeAsync()
     {
-#if NET6_0_OR_GREATER
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-#endif
-        this.shiftJisEncoding = Encoding.GetEncoding("Shift_JIS");
-        this.JapaneseNationalHolidayDataList = new List<JapaneseNationalHolidayData>();
+        var filePath = Path.Combine(AppContext.BaseDirectory, JapaneseNationalHolidayDataFileName);
+
+        Assert.True(File.Exists(filePath), $"National holiday CSV was not found: {filePath}");
+
+        var bytes = await File.ReadAllBytesAsync(filePath).ConfigureAwait(false);
+
+        using var stream = new MemoryStream(bytes, writable: false);
+        using var streamReader = new StreamReader(
+            stream,
+            ShiftJisEncoding,
+            detectEncodingFromByteOrderMarks: false);
+
+        this.japaneseNationalHolidayDataList.AddRange(Parse(streamReader));
     }
 
-    public IList<JapaneseNationalHolidayData> JapaneseNationalHolidayDataList { get; }
-
-    public async Task InitializeAsync()
+    public ValueTask DisposeAsync()
     {
-        if (File.Exists(JapaneseNationalHolidayDataFilePath) is false)
+        return ValueTask.CompletedTask;
+    }
+
+    /// <summary>
+    /// Parses and validates the official CSV format: a fixed header followed by
+    /// strictly ascending <c>yyyy/M/d,name</c> records.
+    /// </summary>
+    internal static IReadOnlyList<JapaneseNationalHolidayData> Parse(TextReader reader)
+    {
+        var header = reader.ReadLine();
+
+        if (header is null)
         {
-            Assert.Fail("File not found.");
+            throw new InvalidDataException("The national holiday CSV is empty.");
         }
 
-        var fileStream = new FileStream(
-            JapaneseNationalHolidayDataFilePath,
-            FileMode.Open,
-            FileAccess.Read,
-            FileShare.Read,
-            2048,
-            true);
+        header = header.TrimStart('\uFEFF');
 
-#if NET6_0_OR_GREATER
-        await using (fileStream.ConfigureAwait(false))
-#else
-        using (fileStream)
-#endif
+        if (header != ExpectedHeader)
         {
-            using var streamReader = new StreamReader(fileStream, this.shiftJisEncoding);
+            throw new InvalidDataException($"Unexpected CSV header: {header}");
+        }
 
-            var line = await streamReader.ReadLineAsync().ConfigureAwait(false);
+        var result = new List<JapaneseNationalHolidayData>();
+        DateOnly? previousDate = null;
+        string? line;
 
-            while (line is not null)
+        while ((line = reader.ReadLine()) is not null)
+        {
+            if (line.Length == 0)
             {
-                line = await streamReader.ReadLineAsync().ConfigureAwait(false);
-
-                if (string.IsNullOrWhiteSpace(line))
-                {
-                    continue;
-                }
-
-                var split = line.Split(',');
-
-                if (split.Length != 2)
-                {
-                    continue;
-                }
-
-                this.JapaneseNationalHolidayDataList.Add(new JapaneseNationalHolidayData
-                {
-#if NET6_0_OR_GREATER
-                    Date = DateOnly.Parse(split[0]),
-#else
-                    Date = DateTime.Parse(split[0]),
-#endif
-                    Name = split[1],
-                });
+                throw new InvalidDataException("The national holiday CSV contains an empty line.");
             }
+
+            var columns = line.Split(',');
+
+            if (columns.Length != 2)
+            {
+                throw new InvalidDataException($"Malformed record (expected 2 columns): {line}");
+            }
+
+            if (columns[0].Length == 0 || columns[1].Length == 0)
+            {
+                throw new InvalidDataException($"Malformed record (empty column): {line}");
+            }
+
+            if (!DateOnly.TryParseExact(
+                    columns[0],
+                    "yyyy/M/d",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out var date))
+            {
+                throw new InvalidDataException($"Malformed date (expected yyyy/M/d): {columns[0]}");
+            }
+
+            if (date < MinimumDate || date > MaximumDate)
+            {
+                throw new InvalidDataException(
+                    $"Date outside the checked range {MinimumDate:yyyy-MM-dd}..{MaximumDate:yyyy-MM-dd}: {date:yyyy-MM-dd}");
+            }
+
+            if (previousDate == date)
+            {
+                throw new InvalidDataException($"Duplicate record for {date:yyyy-MM-dd}.");
+            }
+
+            if (previousDate > date)
+            {
+                throw new InvalidDataException(
+                    $"Records are not sorted ascending: {date:yyyy-MM-dd} follows {previousDate:yyyy-MM-dd}.");
+            }
+
+            result.Add(new JapaneseNationalHolidayData
+            {
+                Date = date,
+                Name = columns[1],
+            });
+
+            previousDate = date;
         }
+
+        if (result.Count == 0)
+        {
+            throw new InvalidDataException("The national holiday CSV contains no records.");
+        }
+
+        return result;
     }
 
-    public Task DisposeAsync()
+    private static Encoding CreateShiftJisEncoding()
     {
-        return Task.CompletedTask;
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+        return Encoding.GetEncoding(
+            932,
+            EncoderFallback.ExceptionFallback,
+            DecoderFallback.ExceptionFallback);
     }
 }
