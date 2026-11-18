@@ -4,11 +4,18 @@ name: Publish NuGet.org
 # src/JpCalendar/JpCalendar.csproj, so a push to main publishes a new version only when
 # that version changes; --skip-duplicate keeps later pushes to main green.
 #
-# Authentication uses NuGet Trusted Publishing (GitHub OIDC). The `publish` job is bound
-# to the GitHub environment `nuget`, which must be configured on the repository with a
-# deployment branch policy that allows only `main`; that restriction lives in repository
-# settings, not in this file. No long-lived NuGet API key secret is used or stored: the
-# key is a short-lived token minted by NuGet/login right before the push.
+# The run is split into two jobs so that only the job that mints the NuGet credential
+# holds elevated permissions:
+#   * build   - unprivileged (contents: read only). Restores, tests, packs, verifies the
+#               package and uploads exactly that one .nupkg as a workflow-run artifact.
+#   * publish - no checkout and no project/test execution. Downloads that artifact from
+#               the current run, re-checks that it is the single expected package, then
+#               exchanges a GitHub OIDC token for a short-lived NuGet API key.
+#
+# Trusted Publishing binds the publish job to the GitHub environment `nuget`. That
+# environment must be configured on the repository with a deployment branch policy that
+# allows only `main`; the restriction lives in repository settings, not in this file.
+# No long-lived NuGet API key secret is used or stored anywhere.
 
 on:
   push:
@@ -23,15 +30,15 @@ env:
   CONFIGURATION: Release
   DOTNET_VERSION: 11.0.100
   OUTPUT_DIR: ./nuget
+  # Unique per workflow run and re-run attempt, so a retried job can never read a
+  # package uploaded by an earlier attempt or a different run.
+  PACKAGE_ARTIFACT: jpcalendar-nupkg-${{ github.run_id }}-${{ github.run_attempt }}
 
 jobs:
-  publish:
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: nuget
     permissions:
       contents: read
-      id-token: write
 
     steps:
     - uses: actions/checkout@v4
@@ -71,6 +78,54 @@ jobs:
         echo "Packing version ${version} from ${package}"
         printf 'version=%s\npath=%s\n' "${version}" "${package}" >> "${GITHUB_OUTPUT}"
 
+    - name: Upload the package
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      with:
+        name: ${{ env.PACKAGE_ARTIFACT }}
+        path: ${{ steps.package.outputs.path }}
+        if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: nuget
+    # The artifact service authenticates with the run-scoped runtime token, so this job
+    # needs no repository token; id-token: write exists only for the NuGet OIDC exchange.
+    permissions:
+      id-token: write
+
+    steps:
+    - name: Download the package
+      uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+      with:
+        name: ${{ env.PACKAGE_ARTIFACT }}
+        path: ${{ env.OUTPUT_DIR }}
+
+    - name: Check the downloaded package
+      id: package
+      run: |
+        set -euo pipefail
+        shopt -s nullglob dotglob
+        entries=("${OUTPUT_DIR}"/*)
+        if (( ${#entries[@]} != 1 )); then
+          echo "Expected exactly one file in ${OUTPUT_DIR}, found ${#entries[@]}." >&2
+          ls -1A "${OUTPUT_DIR}" >&2
+          exit 1
+        fi
+        package="${entries[0]}"
+        filename="${package##*/}"
+        if [[ ! "${filename}" =~ ^JpCalendar\.[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?\.nupkg$ ]]; then
+          echo "Unexpected artifact file: ${filename}" >&2
+          exit 1
+        fi
+        version="${filename#JpCalendar.}"
+        version="${version%.nupkg}"
+        # Inspect the archive only; nothing from the artifact is executed or built.
+        unzip -p "${package}" JpCalendar.nuspec | grep -Fq "<version>${version}</version>"
+        echo "Publishing JpCalendar ${version}"
+        printf 'version=%s\npath=%s\n' "${version}" "${package}" >> "${GITHUB_OUTPUT}"
+
     - name: Log in to NuGet.org
       id: login
       uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
@@ -84,5 +139,7 @@ jobs:
         NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
       run: |
         set -euo pipefail
+        command -v dotnet > /dev/null || { echo "dotnet is not available on the runner image" >&2; exit 1; }
+        dotnet --version
         echo "Publishing JpCalendar ${PACKAGE_VERSION}"
         dotnet nuget push "${PACKAGE_PATH}" --api-key "${NUGET_API_KEY}" --source https://api.nuget.org/v3/index.json --skip-duplicate
