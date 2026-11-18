@@ -3,6 +3,12 @@ name: Publish NuGet.org
 # Publishes the package that is built from main. The version is the one declared in
 # src/JpCalendar/JpCalendar.csproj, so a push to main publishes a new version only when
 # that version changes; --skip-duplicate keeps later pushes to main green.
+#
+# Authentication uses NuGet Trusted Publishing (GitHub OIDC). The `publish` job is bound
+# to the GitHub environment `nuget`, which must be configured on the repository with a
+# deployment branch policy that allows only `main`; that restriction lives in repository
+# settings, not in this file. No long-lived NuGet API key secret is used or stored: the
+# key is a short-lived token minted by NuGet/login right before the push.
 
 on:
   push:
@@ -21,6 +27,11 @@ env:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    environment:
+      name: nuget
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
     - uses: actions/checkout@v4
@@ -60,11 +71,17 @@ jobs:
         echo "Packing version ${version} from ${package}"
         printf 'version=%s\npath=%s\n' "${version}" "${package}" >> "${GITHUB_OUTPUT}"
 
+    - name: Log in to NuGet.org
+      id: login
+      uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
+      with:
+        user: zwei_222
+
     - name: Publish
       env:
         PACKAGE_VERSION: ${{ steps.package.outputs.version }}
         PACKAGE_PATH: ${{ steps.package.outputs.path }}
-        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
       run: |
         set -euo pipefail
         echo "Publishing JpCalendar ${PACKAGE_VERSION}"
