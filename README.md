@@ -22,6 +22,13 @@ Install the NuGet package as follows.
 dotnet add package JpCalendar
 ```
 
+## Target frameworks
+Version 2.0.0 ships `net10.0`, `net11.0` and `netstandard2.0` assets. The `net6.0`, `net7.0` and
+`net8.0` assets from 1.x are no longer produced. Applications on those frameworks resolve the
+`netstandard2.0` asset, which does not expose the `DateOnly` overloads (`GetEra(DateOnly)`,
+`GetEraIndex(DateOnly)`, `GetRokuyo(DateOnly)`, `IsNationalHoliday(DateOnly)` and
+`GetNationalHolidayName(DateOnly)`). Use the `DateTime` overloads there, or target `net10.0` or later.
+
 ## Usage
 ### Era
 Get the Japanese calendar name corresponding to the date passed to `GetEra(date)`.
@@ -84,6 +91,14 @@ By running the Web API project, it is possible to see the library in action on t
 ![image](https://user-images.githubusercontent.com/46480712/257437281-c27c43fe-86e3-4a06-a89b-11e1809a6e5c.png)
 
 ![image](https://user-images.githubusercontent.com/46480712/257437585-a52bb544-468e-4dcf-97b3-1b5f7ee4d16a.png)
+
+## Data
+The test fixture `docs/syukujitsu.csv` is the unmodified CSV published by the Cabinet Office:
+https://www8.cao.go.jp/chosei/shukujitsu/syukujitsu.csv
+
+It is provided under the Public Data License (PDL) 1.0. See [docs/syukujitsu.md](docs/syukujitsu.md)
+for the source, checksum and provenance notice. The source code of this repository remains under
+the MIT License (see LICENSE).
 
 # Author
 [@zwei_222](https://twitter.com/zwei_222)

@@ -6,9 +6,14 @@ public sealed class CalendarTest : IClassFixture<FileFixture>
 {
     private readonly FileFixture fileFixture;
 
+    private readonly HashSet<DateOnly> holidays;
+
     public CalendarTest(FileFixture fileFixture)
     {
         this.fileFixture = fileFixture;
+        this.holidays = fileFixture.JapaneseNationalHolidayDataList
+            .Select(holiday => holiday.Date)
+            .ToHashSet();
     }
 
     [Fact(DisplayName = "Is holiday")]
@@ -16,47 +21,51 @@ public sealed class CalendarTest : IClassFixture<FileFixture>
     {
         foreach (var holiday in this.fileFixture.JapaneseNationalHolidayDataList)
         {
-            // for debug
-            if (new DateTime(2020, 7, 24) == new DateTime(holiday.Date.Year, holiday.Date.Month, holiday.Date.Day))
-            {
-                ;
-            }
-
-            if (Calendar.IsNationalHoliday(holiday.Date) is false)
-            {
-                Assert.Fail($"{holiday.Date} is national holiday. ({holiday.Name})");
-            }
+            Assert.True(
+                Calendar.IsNationalHoliday(holiday.Date),
+                $"{holiday.Date:yyyy-MM-dd} is a national holiday. ({holiday.Name})");
+            Assert.True(
+                Calendar.IsNationalHoliday(holiday.Date.ToDateTime(TimeOnly.MinValue)),
+                $"{holiday.Date:yyyy-MM-dd} is a national holiday. ({holiday.Name})");
+            Assert.False(string.IsNullOrEmpty(Calendar.GetNationalHolidayName(holiday.Date)));
+            Assert.False(string.IsNullOrEmpty(
+                Calendar.GetNationalHolidayName(holiday.Date.ToDateTime(TimeOnly.MinValue))));
         }
     }
 
     [Fact(DisplayName = "Is not holiday")]
     public void IsNationalHolidayTest002()
     {
-        var currentDate = new DateTime(1955, 1, 1);
-
-        foreach (var holiday in this.fileFixture.JapaneseNationalHolidayDataList)
+        for (var date = FileFixture.MinimumDate; date <= FileFixture.MaximumDate; date = date.AddDays(1))
         {
-            while (true)
+            if (this.holidays.Contains(date))
             {
-                // for debug
-                if (new DateTime(2021, 7, 24) == currentDate)
-                {
-                    ;
-                }
-
-                if (currentDate == new DateTime(holiday.Date.Year, holiday.Date.Month, holiday.Date.Day))
-                {
-                    currentDate = currentDate.AddDays(1);
-                    break;
-                }
-
-                if (Calendar.IsNationalHoliday(currentDate))
-                {
-                    Assert.Fail($"{currentDate} is not national holiday.");
-                }
-
-                currentDate = currentDate.AddDays(1);
+                continue;
             }
+
+            Assert.False(
+                Calendar.IsNationalHoliday(date),
+                $"{date:yyyy-MM-dd} is not a national holiday.");
+            Assert.False(
+                Calendar.IsNationalHoliday(date.ToDateTime(TimeOnly.MinValue)),
+                $"{date:yyyy-MM-dd} is not a national holiday.");
+            Assert.Null(Calendar.GetNationalHolidayName(date));
+            Assert.Null(Calendar.GetNationalHolidayName(date.ToDateTime(TimeOnly.MinValue)));
         }
+    }
+
+    [Fact(DisplayName = "Fixture covers the checked range")]
+    public void FixtureTest001()
+    {
+        var holidays = this.fileFixture.JapaneseNationalHolidayDataList;
+
+        Assert.Equal(1067, holidays.Count);
+        Assert.Equal(1067, this.holidays.Count);
+        Assert.Equal(FileFixture.MinimumDate, holidays[0].Date);
+        Assert.Equal(FileFixture.MaximumDate, holidays[^1].Date);
+        Assert.All(holidays, holiday => Assert.InRange(
+            holiday.Date,
+            FileFixture.MinimumDate,
+            FileFixture.MaximumDate));
     }
 }

@@ -1,0 +1,4 @@
+# The official Cabinet Office CSV is shipped byte-for-byte (CP932, CRLF).
+# Never let Git normalize its line endings, and do not report CRLF as whitespace errors.
+*.csv -text
+docs/syukujitsu.csv -text -whitespace

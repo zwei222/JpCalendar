@@ -2,29 +2,7 @@
 
 public sealed class JapaneseNationalHolidayData
 {
-    public
-#if NET6_0_OR_GREATER
-        DateOnly
-#else
-        DateTime
-#endif
-        Date
-    {
-        get;
-#if NET6_0_OR_GREATER
-        init;
-#else
-        set;
-#endif
-    }
+    public DateOnly Date { get; init; }
 
-    public string Name
-    {
-        get;
-#if NET6_0_OR_GREATER
-        init;
-#else
-        set;
-#endif
-    } = string.Empty;
+    public string Name { get; init; } = string.Empty;
 }
